@@ -54,7 +54,7 @@ public class SecurityConfig {
                 // Configurar CORS (lo dejamos por defecto por ahora, se puede ajustar luego)
                 .cors(Customizer.withDefaults())
 
-                // Configurar la gestión de sesiones como STATELESS (¡fundamental para JWT!)
+                // Configurar la gestión de sesiones como STATELESS
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 // Configurar las reglas de autorización
