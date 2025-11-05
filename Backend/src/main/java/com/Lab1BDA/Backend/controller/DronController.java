@@ -47,7 +47,6 @@ public class DronController {
         Dron dronActualizado = dronService.actualizarDron(id, dronRequestDTO);
         return ResponseEntity.ok(dronActualizado);
     }
-
     /**
      * Endpoint para eliminar un dron.
      * Se accede vía DELETE http://localhost:8081/api/drones/1
