@@ -107,5 +107,5 @@ CREATE INDEX IF NOT EXISTS idx_registro_vuelo_mision_time ON registro_vuelo(id_m
 CREATE INDEX IF NOT EXISTS idx_usuarios_email ON usuarios(email);
 
 -- Índice ESPACIAL (GIST): Fundamental para búsquedas rápidas de coordenadas
-[cite_start]-- Esto es lo que permite que la consulta 9 sea eficiente 
+-- Esto es lo que permite que la consulta 9 sea eficiente 
 CREATE INDEX IF NOT EXISTS idx_registro_vuelo_coordenadas ON registro_vuelo USING GIST (coordenadas);
