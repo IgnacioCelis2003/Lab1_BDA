@@ -3,7 +3,7 @@
   <ul>
     <li>
         <NuxtLink to="/">
-        <strong>App Peliculas</strong>
+        <strong>App Drones</strong>
         </NuxtLink>
     </li>
   </ul>
