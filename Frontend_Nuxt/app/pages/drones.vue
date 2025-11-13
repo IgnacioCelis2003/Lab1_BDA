@@ -46,7 +46,10 @@ async function onCreated() {
         <div class="stack">
             <div style="display:flex;justify-content:space-between;align-items:center">
                 <h2>Drones</h2>
-                <button class="contrast" @click="showModal = true">Agregar Dron</button>
+                                <div style="display:flex;gap:0.5rem">
+                                    <NuxtLink to="/modelosdron" class="secondary">Revisar modelos disponibles</NuxtLink>
+                                    <button class="contrast" @click="showModal = true">Agregar Dron</button>
+                                </div>
             </div>
         </div>
 

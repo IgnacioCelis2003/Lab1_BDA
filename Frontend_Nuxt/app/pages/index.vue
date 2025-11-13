@@ -9,7 +9,7 @@ const { data: movies, error, status} = await useFetch('/api/movie', {
     <main class="container">
         <h2>Panel</h2>
 
-        <div class="grid">
+        <div class="grid" style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;align-items:stretch">
             <NuxtLink to="/drones" class="card">
                 <h3>Drones</h3>
                 <p>Ver y gestionar los drones registrados.</p>

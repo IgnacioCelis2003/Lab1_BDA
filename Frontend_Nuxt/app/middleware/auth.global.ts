@@ -1,13 +1,16 @@
 export default defineNuxtRouteMiddleware(async (to, from) => {
-  // Allow navigate to login/register freely
-  if (to.path.startsWith('/login') || to.path.startsWith('/register')) return;
+  // Allow free access to login, register and public assets
+  const publicPaths = ['/login', '/register'];
+  if (publicPaths.some(p => to.path.startsWith(p))) return;
 
   try {
-    const { data } = await useFetch('/api/auth/check');
-    if (!data.value?.authenticated) {
+    // Use $fetch for a simple, immediate call to our server check endpoint
+    const res = await $fetch('/api/auth/check');
+    if (!res || !res.authenticated) {
       return navigateTo('/login');
     }
   } catch (e) {
+    // If anything fails, redirect to login
     return navigateTo('/login');
   }
 });

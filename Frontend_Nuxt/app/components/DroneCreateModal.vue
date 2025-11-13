@@ -9,8 +9,12 @@
         </label>
 
         <label>
-          idModelo
-          <input type="number" v-model.number="newDrone.idModelo" required />
+          Modelo
+          <select v-model.number="newDrone.idModelo" required>
+            <option v-if="!modelos && !modelosError" disabled> Cargando modelos... </option>
+            <option v-if="modelosError" disabled> Error cargando modelos </option>
+            <option v-for="m in modelos" :key="m.idModelo" :value="m.idModelo">{{ m.nombreModelo }} — {{ m.fabricante }}</option>
+          </select>
         </label>
 
         <label>
@@ -57,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { reactive, ref, watchEffect } from 'vue';
 
 const props = defineProps({ show: { type: Boolean, default: false } });
 const emit = defineEmits(['update:show', 'created']);
@@ -65,15 +69,35 @@ const emit = defineEmits(['update:show', 'created']);
 const saving = ref(false);
 const formError = ref<string | null>(null);
 
+// fetch available models from server
+// fetch available models from server (typed)
+interface Model {
+  idModelo: number;
+  nombreModelo: string;
+  fabricante: string;
+  capacidadCargaKg: number;
+  autonomiaMinutos: number;
+}
+
+const { data: modelos, error: modelosError } = await useFetch<Model[]>('/api/modelos/all');
+
 const newDrone = reactive({
   placa: '',
-  idModelo: 1,
+  idModelo: 0,
   estado: 'Disponible',
   horasVuelo: 0,
   ultimaFechaVuelo: new Date().toISOString(),
   ubicacionLat: 0.0,
   ubicacionLon: 0.0,
   capacidadCargaKg: 0.0
+});
+
+// when modelos load, default to the first available id if not set
+watchEffect(() => {
+  if (modelos && modelos.value && modelos.value.length && (!newDrone.idModelo || newDrone.idModelo === 0)) {
+    const first = modelos.value[0];
+    if (first && first.idModelo) newDrone.idModelo = first.idModelo;
+  }
 });
 
 function cancel() {

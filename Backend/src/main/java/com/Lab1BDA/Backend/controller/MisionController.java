@@ -17,6 +17,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/misiones")
+@CrossOrigin(origins = "http://localhost:3000")
 public class MisionController {
 
     @Autowired
@@ -36,7 +37,7 @@ public class MisionController {
      * GET /api/misiones/{id}
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Mision> obtenerMisionPorId(@PathVariable Long id) {
+    public ResponseEntity<Mision> obtenerMisionPorId(@PathVariable("id") Long id) {
         return ResponseEntity.ok(misionService.getMisionPorId(id));
     }
 
@@ -79,7 +80,7 @@ public class MisionController {
      * DELETE /api/misiones/{id}
      */
     @DeleteMapping("/eliminar/{id}")
-    public ResponseEntity<Void> eliminarMision(@PathVariable Long id) {
+    public ResponseEntity<Void> eliminarMision(@PathVariable("id") Long id) {
         misionService.eliminarMision(id);
         return ResponseEntity.noContent().build(); // HTTP 204
     }
@@ -94,8 +95,8 @@ public class MisionController {
      */
     @PostMapping("/{idMision}/asignar/{idDron}")
     public ResponseEntity<Void> asignarMision(
-            @PathVariable Long idMision,
-            @PathVariable Long idDron) {
+            @PathVariable("idMision") Long idMision,
+            @PathVariable("idDron") Long idDron) {
 
         // Simplemente llamamos al servicio.
         // Si el servicio (o el SP) lanza una excepción,
