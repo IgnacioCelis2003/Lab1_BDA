@@ -44,7 +44,7 @@ public class DronController {
      * @return ResponseEntity con el dron actualizado y estado 200 (OK).
      */
     @PutMapping("/actualizar/{id}")
-    public ResponseEntity<Dron> actualizarDron(@PathVariable Long id, @RequestBody DronRequestDTO dronRequestDTO) {
+    public ResponseEntity<Dron> actualizarDron(@PathVariable("id") Long id, @RequestBody DronRequestDTO dronRequestDTO) {
         Dron dronActualizado = dronService.actualizarDron(id, dronRequestDTO);
         return ResponseEntity.ok(dronActualizado);
     }
@@ -55,7 +55,7 @@ public class DronController {
      * @return ResponseEntity con estado 204 (No Content).
      */
     @DeleteMapping("/eliminar/{id}")
-    public ResponseEntity<Void> eliminarDron(@PathVariable Long id) {
+    public ResponseEntity<Void> eliminarDron(@PathVariable("id") Long id) {
         dronService.eliminarDron(id);
         return ResponseEntity.noContent().build(); // HTTP 204
     }
@@ -79,7 +79,7 @@ public class DronController {
      * @return ResponseEntity con el Dron y estado 200 (OK).
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Dron> obtenerDronPorId(@PathVariable Long id) {
+    public ResponseEntity<Dron> obtenerDronPorId(@PathVariable("id") Long id) {
         Dron dron = dronService.getDronPorId(id);
         return ResponseEntity.ok(dron);
     }
@@ -93,7 +93,7 @@ public class DronController {
      * @return Un JSON con un mensaje y el conteo de drones actualizados.
      */
     @PostMapping("/mantenimiento/modelo/{idModelo}")
-    public ResponseEntity<?> actualizarMantenimientoPorModelo(@PathVariable Long idModelo) {
+    public ResponseEntity<?> actualizarMantenimientoPorModelo(@PathVariable("idModelo") Long idModelo) {
 
         int dronesActualizados = dronService.solicitarMantenimientoPorModelo(idModelo);
 
