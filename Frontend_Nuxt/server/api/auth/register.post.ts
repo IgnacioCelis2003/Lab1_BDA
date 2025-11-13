@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
         throw createError("Se deben de pasar los datos del usuario en DataBody");
     }
 
-    return await $fetch(`api/auth/register`, {
+    return await $fetch(`http://localhost:8080/api/auth/register`, {
         method: "POST",
         body: {
             nombre: data.nombre,

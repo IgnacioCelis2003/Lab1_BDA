@@ -49,9 +49,12 @@
         type="submit" 
         class="contrast"
       >
-        Ingresar
+        Registrar
       </button>
         <div v-if="error">{{ error }}</div>
+        <div style="margin-top:1rem">
+          <NuxtLink to="/login" class="secondary">Iniciar sesión</NuxtLink>
+        </div>
     </form>
 
     
@@ -66,19 +69,17 @@ definePageMeta({
 const error = ref<string | null>(null);
 
 async function submitForm(){
-
-  const { data, error } = await useFetch('http://localhost:8080/api/auth/register', {
+  error.value = null;
+  try{
+    await $fetch('/api/auth/register', {
       method: 'POST',
-      
-      // El 'body' se convertirá automáticamente a JSON
-      body: form,
-      
-      // No usamos `await` en la misma línea para poder manejar 'pending'
-      // 'lazy: true' significa que no bloqueará la navegación (útil en otros casos)
-      lazy: true,
+      body: form
     });
-
-  return data;
+    // redirigir a login
+    navigateTo('/login');
+  }catch(e:any){
+    error.value = e?.data?.message || e?.message || 'Error al registrar';
+  }
 }
 
 const form = reactive({
@@ -90,16 +91,13 @@ const form = reactive({
 </script>
 
 <style scoped>
-/* Aunque Pico hace la mayoría del trabajo, podemos añadir estilos 
-  específicos para centrar o limitar el ancho de nuestro componente.
-*/
+
 .login-card {
   max-width: 480px; /* Limita el ancho del formulario */
   margin: 4rem auto; /* Centra el formulario vertical y horizontalmente */
   padding: 2rem;
 }
 
-/* El spinner de Pico es un poco grande, lo ajustamos */
 button[aria-busy="true"] {
   padding-left: 3rem;
   padding-right: 3rem;
