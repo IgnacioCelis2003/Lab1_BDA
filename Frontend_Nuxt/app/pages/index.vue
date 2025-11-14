@@ -26,5 +26,14 @@ const { data: movies, error, status} = await useFetch('/api/movie', {
             </NuxtLink>
         </div>
 
-    </main>
+            <!-- Imagen centrada debajo del grid -->
+            <div style="display:flex;justify-content:center;margin-top:1.5rem;">
+                <img
+                    src="https://media.tenor.com/bHqLgorwltUAAAAe/juan-carlos-bodoque-bike.png"
+                    alt="Juan Carlos Bodoque en bicicleta"
+                    style="max-width:420px;width:100%;height:auto;display:block;"
+                />
+            </div>
+
+        </main>
 </template>

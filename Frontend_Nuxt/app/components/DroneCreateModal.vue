@@ -36,13 +36,12 @@
         </label>
 
         <label>
-          Ubicación Lat
-          <input type="number" step="0.000001" v-model.number="newDrone.ubicacionLat" />
-        </label>
-
-        <label>
-          Ubicación Lon
-          <input type="number" step="0.000001" v-model.number="newDrone.ubicacionLon" />
+          Ubicación
+          <MapPicker v-model:lat="newDrone.ubicacionLat" v-model:lon="newDrone.ubicacionLon" />
+          <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+            <input style="flex:1" type="number" step="0.000001" v-model.number="newDrone.ubicacionLat" />
+            <input style="flex:1" type="number" step="0.000001" v-model.number="newDrone.ubicacionLon" />
+          </div>
         </label>
 
         <label>
@@ -62,6 +61,7 @@
 
 <script setup lang="ts">
 import { reactive, ref, watchEffect } from 'vue';
+import MapPicker from '~/components/MapPicker.vue';
 
 const props = defineProps({ show: { type: Boolean, default: false } });
 const emit = defineEmits(['update:show', 'created']);
