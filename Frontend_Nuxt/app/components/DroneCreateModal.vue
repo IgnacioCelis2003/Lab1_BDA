@@ -3,10 +3,6 @@
     <div class="card" style="max-width:640px;width:min(95vw,640px);max-height:80vh;overflow:auto;padding:1rem;box-sizing:border-box;background:rgba(31,31,52,0.98);border-radius:8px;border:1px solid rgba(0,0,0,0.12);box-shadow:0 8px 24px rgba(0,0,0,0.2);">
       <h3>Nuevo Dron</h3>
       <form @submit.prevent="createDrone">
-        <label>
-          Placa
-          <input v-model="newDrone.placa" required />
-        </label>
 
         <label>
           Modelo
@@ -26,27 +22,12 @@
         </label>
 
         <label>
-          Horas de vuelo
-          <input type="number" step="0.1" v-model.number="newDrone.horasVuelo" />
-        </label>
-
-        <label>
-          Última fecha de vuelo
-          <input type="datetime-local" v-model="newDrone.ultimaFechaVuelo" />
-        </label>
-
-        <label>
           Ubicación
           <MapPicker v-model:lat="newDrone.ubicacionLat" v-model:lon="newDrone.ubicacionLon" />
           <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
             <input style="flex:1" type="number" step="0.000001" v-model.number="newDrone.ubicacionLat" />
             <input style="flex:1" type="number" step="0.000001" v-model.number="newDrone.ubicacionLon" />
           </div>
-        </label>
-
-        <label>
-          Capacidad carga (kg)
-          <input type="number" step="0.1" v-model.number="newDrone.capacidadCargaKg" />
         </label>
 
         <div style="display:flex;gap:0.5rem;justify-content:flex-end;margin-top:1rem">
@@ -82,14 +63,8 @@ interface Model {
 const { data: modelos, error: modelosError } = await useFetch<Model[]>('/api/modelos/all');
 
 const newDrone = reactive({
-  placa: '',
   idModelo: 0,
   estado: 'Disponible',
-  horasVuelo: 0,
-  ultimaFechaVuelo: new Date().toISOString(),
-  ubicacionLat: 0.0,
-  ubicacionLon: 0.0,
-  capacidadCargaKg: 0.0
 });
 
 // when modelos load, default to the first available id if not set
@@ -113,7 +88,6 @@ async function createDrone() {
   saving.value = true;
   try {
     const payload: any = { ...newDrone };
-    try { payload.ultimaFechaVuelo = new Date(newDrone.ultimaFechaVuelo).toISOString(); } catch (e) {}
     await $fetch('/api/drones/crear', { method: 'POST', body: payload });
     emit('created');
     emit('update:show', false);
