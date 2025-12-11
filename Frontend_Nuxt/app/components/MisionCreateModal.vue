@@ -1,32 +1,51 @@
 <template>
   <div v-if="props.show" class="modal" style="position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:40">
     <div class="card" style="max-width:640px;width:min(95vw,640px);max-height:80vh;overflow:auto;padding:1rem;box-sizing:border-box;background:rgba(31,31,52,0.98);border-radius:8px;border:1px solid rgba(0,0,0,0.12);box-shadow:0 8px 24px rgba(0,0,0,0.2);">
-      <h3>Nuevo Dron</h3>
-      <form @submit.prevent="createDrone">
+      <h3>Nueva Misión</h3>
+      <form @submit.prevent="createMision">
 
         <label>
-          Modelo
-          <select v-model.number="newDrone.idModelo" required>
-            <option v-if="!modelos && !modelosError" disabled> Cargando modelos... </option>
-            <option v-if="modelosError" disabled> Error cargando modelos </option>
-            <option v-for="m in modelos" :key="m.idModelo" :value="m.idModelo">{{ m.nombreModelo }} — {{ m.fabricante }}</option>
+          Tipo de Misión
+          <select v-model.number="newMision.idTipoMision" required>
+            <option v-if="!tiposMision && !tiposError" disabled> Cargando tipos... </option>
+            <option v-if="tiposError" disabled> Error cargando tipos </option>
+            <option v-for="t in tiposMision" :key="t.idTipoMision" :value="t.idTipoMision">{{ t.nombreTipo }}</option>
           </select>
+        </label>
+
+        <label>
+          Dron Asignado 
+          <select v-model.number="newMision.idDronAsignado" required>
+            <option v-if="!drones && !dronesError" disabled> Cargando drones... </option>
+            <option v-if="dronesError" disabled> Error cargando drones </option>
+            <option v-for="d in drones" :key="d.idDron" :value="d.idDron">Dron {{ d.idDron }} (Modelo {{ modelsMap[d.idModelo].nombreModelo }})</option>
+          </select>
+        </label>
+
+        <label>
+          Fecha Inicio Planificada
+          <input v-model="newMision.fechaInicioPlanificada" type="datetime-local" required />
+        </label>
+
+        <label>
+          Fecha Fin Planificada
+          <input v-model="newMision.fechaFinPlanificada" type="datetime-local" required />
         </label>
 
         <label>
           Estado
-          <select v-model="newDrone.estado">
-            <option>Disponible</option>
-            <option>En Mantenimiento</option>
+          <select v-model="newMision.estado" required>
+            <option>Pendiente</option>
+            <option>Completada</option>
           </select>
         </label>
 
         <label>
-          Ubicación
-          <MapPicker v-model:lat="newDrone.ubicacionLat" v-model:lon="newDrone.ubicacionLon" />
-          <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
-            <input style="flex:1" type="number" step="0.000001" v-model.number="newDrone.ubicacionLat" />
-            <input style="flex:1" type="number" step="0.000001" v-model.number="newDrone.ubicacionLon" />
+          Ruta (selecciona 2 puntos en el mapa)
+          <MapPicker mode="route" v-model:rutaWKT="newMision.rutaWKT" />
+          <div style="margin-top:0.5rem;">
+            <small>Ruta WKT generada:</small>
+            <div style="font-size:0.85rem;word-break:break-word;background:#0f1724;padding:0.5rem;border-radius:4px;margin-top:0.25rem">{{ newMision.rutaWKT || 'Sin ruta (haz doble clic para limpiar)' }}</div>
           </div>
         </label>
 
@@ -50,49 +69,110 @@ const emit = defineEmits(['update:show', 'created']);
 const saving = ref(false);
 const formError = ref<string | null>(null);
 
-// fetch available models from server
-// fetch available models from server (typed)
-interface Model {
-  idModelo: number;
-  nombreModelo: string;
-  fabricante: string;
-  capacidadCargaKg: number;
-  autonomiaMinutos: number;
+// Interfaces
+interface TipoMision {
+  idTipoMision: number;
+  nombreTipo: string;
 }
 
-const { data: modelos, error: modelosError } = await useFetch<Model[]>('/api/modelos/all');
+interface Dron {
+  idDron: number;
+  nombreDron: string;
+  idModelo: number;
+}
 
-const newDrone = reactive({
-  idModelo: 0,
-  estado: 'Disponible',
+// Fetch tipos de misión
+const { data: tiposMision, error: tiposError } = await useFetch<TipoMision[]>('/api/misiones/tipos/all');
+
+// Fetch drones disponibles
+const { data: drones, error: dronesError } = await useFetch<Dron[]>('/api/drones/all');
+
+// Mapear idModelo a Informacion del modelo
+const modelsMap = ref<Record<number, any>>({});
+const modelsLoading = ref(false);
+
+// Form state
+const newMision = reactive({
+  idTipoMision: 0,
+  idDronAsignado: null as number | null,
+  fechaInicioPlanificada: '',
+  fechaFinPlanificada: '',
+  estado: 'Pendiente',
+  rutaWKT: '',
 });
 
-// when modelos load, default to the first available id if not set
+// Default to first tipo mision when loaded
 watchEffect(() => {
-  if (modelos && modelos.value && modelos.value.length && (!newDrone.idModelo || newDrone.idModelo === 0)) {
-    const first = modelos.value[0];
-    if (first && first.idModelo) newDrone.idModelo = first.idModelo;
+  if (tiposMision && tiposMision.value && tiposMision.value.length && newMision.idTipoMision === 0) {
+    newMision.idTipoMision = tiposMision.value[0].idTipoMision;
   }
 });
+
+// Funcion auxiliar para mostrar informacion de Modelo de los Drones cargados
+async function loadModels() {
+    modelsMap.value = {};
+    if (drones.value && Array.isArray(drones.value) && drones.value.length > 0) {
+        modelsLoading.value = true;
+        const uniqueIds = Array.from(new Set(drones.value.map((d: any) => d.idModelo)));
+        await Promise.all(uniqueIds.map(async (id: number) => {
+            try {
+                const m = await $fetch(`/api/modelos/${id}`);
+                modelsMap.value[id] = m;
+            } catch (e) {
+                console.warn('[drones] failed fetching model', id, e);
+            }
+        }));
+        modelsLoading.value = false;
+    }
+}
+
+// Cargar modelos al inicar
+await loadModels();
 
 function cancel() {
   emit('update:show', false);
 }
 
-async function createDrone() {
+async function createMision() {
   formError.value = null;
-  if (!['Disponible', 'En Mantenimiento'].includes(newDrone.estado)) {
-    formError.value = 'El campo estado debe ser "Disponible" o "En Mantenimiento"';
+
+  // Validaciones
+  if (!newMision.idTipoMision) {
+    formError.value = 'Debes seleccionar un tipo de misión';
     return;
   }
+
+  if (!newMision.fechaInicioPlanificada) {
+    formError.value = 'Debes ingresar una fecha de inicio';
+    return;
+  }
+
+  if (!newMision.fechaFinPlanificada) {
+    formError.value = 'Debes ingresar una fecha de fin';
+    return;
+  }
+
+  if (!newMision.rutaWKT || !newMision.rutaWKT.toUpperCase().startsWith('LINESTRING')) {
+    formError.value = 'Debes ingresar una ruta válida en formato WKT (LINESTRING)';
+    return;
+  }
+
+  const payload = {
+    idTipoMision: newMision.idTipoMision,
+    idDronAsignado: newMision.idDronAsignado,
+    fechaInicioPlanificada: new Date(newMision.fechaInicioPlanificada).toISOString(),
+    fechaFinPlanificada: new Date(newMision.fechaFinPlanificada).toISOString(),
+    estado: newMision.estado,
+    rutaWKT: newMision.rutaWKT,
+  };
+
   saving.value = true;
   try {
-    const payload: any = { ...newDrone };
-    await $fetch('/api/drones/crear', { method: 'POST', body: payload });
+    await $fetch('/api/misiones/crear', { method: 'POST', body: payload });
     emit('created');
     emit('update:show', false);
   } catch (e: any) {
-    formError.value = e?.data?.message || e?.message || 'Error al crear dron';
+    formError.value = e?.data?.message || e?.message || 'Error al crear misión';
   } finally {
     saving.value = false;
   }

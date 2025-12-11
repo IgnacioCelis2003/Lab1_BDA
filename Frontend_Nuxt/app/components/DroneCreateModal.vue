@@ -21,15 +21,6 @@
           </select>
         </label>
 
-        <label>
-          Ubicación
-          <MapPicker v-model:lat="newDrone.ubicacionLat" v-model:lon="newDrone.ubicacionLon" />
-          <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
-            <input style="flex:1" type="number" step="0.000001" v-model.number="newDrone.ubicacionLat" />
-            <input style="flex:1" type="number" step="0.000001" v-model.number="newDrone.ubicacionLon" />
-          </div>
-        </label>
-
         <div style="display:flex;gap:0.5rem;justify-content:flex-end;margin-top:1rem">
           <button type="button" class="secondary" @click="cancel">Cancelar</button>
           <button type="submit" :disabled="saving" class="contrast">{{ saving ? 'Guardando...' : 'Crear' }}</button>

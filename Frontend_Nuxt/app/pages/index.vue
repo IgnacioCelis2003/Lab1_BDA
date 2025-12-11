@@ -20,7 +20,7 @@ const { data: movies, error, status} = await useFetch('/api/movie', {
                 <p>Listado de misiones y su estado.</p>
             </NuxtLink>
 
-            <NuxtLink to="/misiones" class="card">
+            <NuxtLink to="/telemetria" class="card">
                 <h3>Resumen de Misiones</h3>
                 <p>Estadísticas y resúmenes por tipo de misión.</p>
             </NuxtLink>
