@@ -31,7 +31,7 @@ public class MisionRepository {
     // Esto (leer con ST_AsWKT) está correcto y se mantiene
     private final String BASE_SELECT = "SELECT id_mision, id_dron_asignado, id_tipo_mision, " +
             "id_operador_creador, fecha_creacion, fecha_inicio_planificada, fecha_fin_planificada, " +
-            "fecha_inicio_real, fecha_fin_real, estado, ST_AsWKT(ruta) AS ruta_wkt FROM misiones";
+            "fecha_inicio_real, fecha_fin_real, estado, ST_AsText(ruta::geometry) AS ruta_wkt FROM misiones";
 
     public List<Mision> findAll() {
         return jdbcTemplate.query(BASE_SELECT, new MisionRowMapper());

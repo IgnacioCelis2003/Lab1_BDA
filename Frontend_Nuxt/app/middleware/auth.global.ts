@@ -3,9 +3,13 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   const publicPaths = ['/login', '/register'];
   if (publicPaths.some(p => to.path.startsWith(p))) return;
 
+  // First, check local cookie to avoid unnecessary network calls
+  const token = useCookie('token');
+  if (token && token.value) return;
+
   try {
-    // Use $fetch for a simple, immediate call to our server check endpoint
-    const res = await $fetch('/api/auth/check');
+    // Ensure cookies are sent when checking auth on the server
+    const res = await $fetch('/api/auth/check', { credentials: 'include' });
     if (!res || !res.authenticated) {
       return navigateTo('/login');
     }

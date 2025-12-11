@@ -58,7 +58,7 @@ export default defineEventHandler(async (event): Promise<any> => {
 
   // Fijar cookie httpOnly segura (en dev: secure=false si no HTTPS)
   const cookieOptions = {
-    httpOnly: true,
+    httpOnly: false,
     path: '/',
     // En producción, ponga secure: true y sameSite según su dominio
     secure: false,

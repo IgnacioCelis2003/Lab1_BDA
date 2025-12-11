@@ -76,6 +76,5 @@ async function onCreated() {
 
         <!-- Componente Modal -->
         <DroneCreateModal v-model:show="showModal" @created="onCreated" />
-
     </main>
 </template>

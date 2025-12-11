@@ -22,7 +22,10 @@ public class MisionRowMapper implements RowMapper<Mision> {
     public Mision mapRow(ResultSet rs, int rowNum) throws SQLException {
         Mision mision = new Mision();
         mision.setIdMision(rs.getLong("id_mision"));
-        mision.setIdDronAsignado(rs.getObject("id_dron_asignado", Long.class));
+        Object idDron = rs.getObject("id_dron_asignado");
+        if (idDron != null) {
+            mision.setIdDronAsignado(((Number) idDron).longValue());
+        }
         mision.setIdTipoMision(rs.getLong("id_tipo_mision"));
         mision.setIdOperadorCreador(rs.getLong("id_operador_creador"));
 
