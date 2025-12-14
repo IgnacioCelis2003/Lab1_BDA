@@ -131,7 +131,7 @@ public class MisionService {
     /**
      * Lógica de negocio para asignar una lista de misiones a varios drones.
      * Llama al procedimiento almacenado en la BD.
-     * @param idsMisiones Lista con los ID de las misiones a optimizar
+     * @param idMisiones Lista con los ID de las misiones a optimizar
      * @return DTO con la ruta óptima de los drones
      */
     public RutaOptimaResponseDTO generarRutaOptimaMultidron(List<Long> idMisiones) {
