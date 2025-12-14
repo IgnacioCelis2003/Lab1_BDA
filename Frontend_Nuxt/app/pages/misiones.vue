@@ -22,7 +22,7 @@ const {
   error,
   status,
   refresh,
-} = await useFetch<Mision[]>("http://localhost:8080/api/misiones/all");
+} = await useFetch<Mision[]>(`/api/misiones/all`);
 
 // Mostrar o no el modal de 'crear misión'
 const showModal = ref(false);

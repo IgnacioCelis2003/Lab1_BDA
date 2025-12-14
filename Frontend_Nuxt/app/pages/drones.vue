@@ -78,7 +78,7 @@ async function deleteDron(d: any) {
   deletingId.value = idDron;
 
   try {
-    await $fetch(`http://localhost:8080/api/drones/eliminar/${idDron}`, {
+    await $fetch(`/api/drones/eliminar/${idDron}`, {
       method: "DELETE",
     });
 
@@ -168,10 +168,10 @@ async function deleteDron(d: any) {
     </section>
 
     <!-- Modal crear -->
-    <DroneFormModal v-model:show="showModal" @created="onCreated" />
+    <DroneCreateModal v-model:show="showModal" @created="onCreated" />
 
     <!-- Modal editar -->
-    <DroneFormModal
+    <DroneCreateModal
       v-model:show="showEditModal"
       :dron="selectedDron"
       @saved="onSaved"

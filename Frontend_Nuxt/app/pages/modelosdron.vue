@@ -39,18 +39,13 @@ async function deleteModelo(m: any) {
   deletingId.value = id;
 
   try {
-    await $fetch(`http://localhost:8080/api/modelos/eliminar/${id}`, {
-      method: "DELETE",
+    await $fetch(`/api/modelos/eliminar/${id}`, {
+      method: 'DELETE'
     });
-
-    if (selectedModel.value?.idModelo === id) {
-      showEditModal.value = false;
-      selectedModel.value = null;
-    }
-
     await refresh();
-  } catch (e: any) {
-    alert(e?.data?.message || e?.message || "Error al eliminar modelo");
+  } catch (e) {
+    console.error("Failed deleting model", e);
+    alert("Error eliminando el modelo.");
   } finally {
     deletingId.value = null;
   }

@@ -163,7 +163,7 @@ async function save() {
     if (isEdit.value && props.dron) {
       //ENDPOINT REAL
       await $fetch(
-        `http://localhost:8080/api/drones/actualizar/${props.dron.idDron}`,
+        `/api/drones/actualizar/${props.dron.idDron}`,
         {
           method: "PUT",
           body: {
@@ -174,7 +174,7 @@ async function save() {
       );
       emit("saved");
     } else {
-      await $fetch("http://localhost:8080/api/drones/crear", {
+      await $fetch(`/api/drones/crear`, {
         method: "POST",
         body: {
           idModelo: form.idModelo,
