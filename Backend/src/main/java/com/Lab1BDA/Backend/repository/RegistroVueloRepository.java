@@ -82,8 +82,9 @@ public class RegistroVueloRepository {
      * @param timestamp
      * @return
      */
-    public List<RegistroVuelo> findByTimestamp(LocalDateTime timestamp) {
-        String sql = BASE_SELECT + " WHERE timestamp = ?";
-        return jdbcTemplate.query(sql, new RegistroVueloRowMapper(), timestamp);
+    public List<RegistroVuelo> findByTimestampInterval(LocalDateTime timestamp) {
+        String sql = BASE_SELECT + " WHERE timestamp BETWEEN ? AND ?";
+        LocalDateTime finIntervalo = timestamp.plusSeconds(5);
+        return jdbcTemplate.query(sql, new RegistroVueloRowMapper(), timestamp, finIntervalo);
     }
 }
