@@ -7,7 +7,7 @@ import java.util.List;
  */
 public record RutaAsignadaDTO(
         Long idDron,
-        String modelo,
+        String nombreModelo,
         List<MisionOrdenadaDTO> misiones,
         Double distanciaTotalMetros,
         Double tiempoEstimadoMinutos,

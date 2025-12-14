@@ -13,4 +13,5 @@ public class ModeloDron {
     private String fabricante;
     private Double capacidadCargaKg;
     private Integer autonomiaMinutos;
+    private Double velocidadPromedioKmh;
 }

@@ -131,15 +131,19 @@ public class MisionService {
     /**
      * Lógica de negocio para asignar una lista de misiones a varios drones.
      * Llama al procedimiento almacenado en la BD.
-     * @param request DTO con los datos de request para la ruta óptima.
+     * @param idsMisiones Lista con los ID de las misiones a optimizar
      * @return DTO con la ruta óptima de los drones
      */
-    public RutaOptimaResponseDTO generarRutaOptimaMultidron(RutaOptimaRequestDTO request) {
+    public RutaOptimaResponseDTO generarRutaOptimaMultidron(List<Long> idMisiones) {
         // 1. Obtener datos de la BD
-        List<DronSpecsDTO> drones = dronRepository.findDronesDisponiblesConSpecs(request.idDrones());
+        List<DronSpecsDTO> drones = dronRepository.findDronesDisponiblesConSpecs();
+
+        if (drones.isEmpty()) {
+            return new RutaOptimaResponseDTO(new ArrayList<>(), idMisiones, "Error: No hay drones disponibles en la flota.");
+        }
 
         // Obtenemos las misiones "crudas"
-        List<Mision> misionesRaw = misionRepository.findMisionesPorIds(request.idMisiones());
+        List<Mision> misionesRaw = misionRepository.findMisionesPorIds(idMisiones);
 
         // Filtramos para quedarnos solo con las que realmente se pueden asignar
         List<Mision> misiones = misionesRaw.stream()
@@ -152,7 +156,7 @@ public class MisionService {
             return new RutaOptimaResponseDTO(new ArrayList<>(), new ArrayList<>(), "Ninguna misión válida (todas estaban asignadas o no pendientes)");
         }
 
-        List<DistanciaMisionDTO> matrizDistancias = misionRepository.calcularMatrizDistancias(request.idMisiones());
+        List<DistanciaMisionDTO> matrizDistancias = misionRepository.calcularMatrizDistancias(idMisiones);
 
         // 2. Estructuras para guardar el progreso global
         List<RutaAsignadaDTO> rutasFinales = new ArrayList<>();

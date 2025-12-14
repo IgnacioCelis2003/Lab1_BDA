@@ -23,7 +23,6 @@ public class ModeloDronController {
         return ResponseEntity.ok(modelos);
     }
 
-    // Fix: specify the path variable name explicitly to avoid reflection/parameter-name issues
     @GetMapping("/{id}")
     public ResponseEntity<ModeloDron> obtenerModelo(@PathVariable("id") Long id) {
         ModeloDron modelo = modeloDronService.getModeloPorId(id);

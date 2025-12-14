@@ -68,9 +68,6 @@ public class DronService {
         dronRepository.deleteById(id);
     }
 
-
-    // --- MÉTODOS QUE YA TENÍAMOS ---
-
     /**
      * Obtiene la lista de todos los drones.
      * @return Lista de Dron

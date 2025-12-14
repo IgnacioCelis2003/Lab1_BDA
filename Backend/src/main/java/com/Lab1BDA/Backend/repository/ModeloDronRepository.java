@@ -20,18 +20,18 @@ public class ModeloDronRepository {
     private JdbcTemplate jdbcTemplate;
 
     public List<ModeloDron> findAll() {
-        String sql = "SELECT id_modelo, nombre_modelo, fabricante, capacidad_carga_kg, autonomia_minutos FROM modelos_dron";
+        String sql = "SELECT id_modelo, nombre_modelo, fabricante, capacidad_carga_kg, autonomia_minutos, velocidad_promedio_kmh FROM modelos_dron";
         return jdbcTemplate.query(sql, new ModeloDronRowMapper());
     }
 
     public Optional<ModeloDron> findById(Long id) {
-        String sql = "SELECT id_modelo, nombre_modelo, fabricante, capacidad_carga_kg, autonomia_minutos FROM modelos_dron WHERE id_modelo = ?";
+        String sql = "SELECT id_modelo, nombre_modelo, fabricante, capacidad_carga_kg, autonomia_minutos, velocidad_promedio_kmh FROM modelos_dron WHERE id_modelo = ?";
         List<ModeloDron> list = jdbcTemplate.query(sql, new ModeloDronRowMapper(), id);
         return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
     }
 
     public ModeloDron save(ModeloDron modelo) {
-        String sql = "INSERT INTO modelos_dron (nombre_modelo, fabricante, capacidad_carga_kg, autonomia_minutos) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO modelos_dron (nombre_modelo, fabricante, capacidad_carga_kg, autonomia_minutos, velocidad_promedio_kmh) VALUES (?, ?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
@@ -40,6 +40,7 @@ public class ModeloDronRepository {
             ps.setString(2, modelo.getFabricante());
             if (modelo.getCapacidadCargaKg() != null) ps.setDouble(3, modelo.getCapacidadCargaKg()); else ps.setNull(3, java.sql.Types.DOUBLE);
             if (modelo.getAutonomiaMinutos() != null) ps.setInt(4, modelo.getAutonomiaMinutos()); else ps.setNull(4, java.sql.Types.INTEGER);
+            if (modelo.getVelocidadPromedioKmh() != null) ps.setDouble(5, modelo.getVelocidadPromedioKmh()); else ps.setNull(5, java.sql.Types.DOUBLE);
             return ps;
         }, keyHolder);
 
@@ -54,12 +55,13 @@ public class ModeloDronRepository {
     }
 
     public ModeloDron update(ModeloDron modelo) {
-        String sql = "UPDATE modelos_dron SET nombre_modelo = ?, fabricante = ?, capacidad_carga_kg = ?, autonomia_minutos = ? WHERE id_modelo = ?";
+        String sql = "UPDATE modelos_dron SET nombre_modelo = ?, fabricante = ?, capacidad_carga_kg = ?, autonomia_minutos = ?, velocidad_promedio_kmh = ? WHERE id_modelo = ?";
         jdbcTemplate.update(sql,
                 modelo.getNombreModelo(),
                 modelo.getFabricante(),
                 modelo.getCapacidadCargaKg(),
                 modelo.getAutonomiaMinutos(),
+                modelo.getVelocidadPromedioKmh(),
                 modelo.getIdModelo());
         return modelo;
     }

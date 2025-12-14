@@ -224,19 +224,12 @@ public class DronRepository {
      * Consulta para funcionalidad clave del sistema: optimización de rutas
      * Obtiene especificaciones técnicas (autonomía, carga) realizando JOIN con modelos_dron.
      * Filtra para traer solo drones con estado 'Disponible'.
-     * @param idsDrones lista de los ID de todos los drones
      * @return Lista de DronSpecsDTO
      */
-    public List<DronSpecsDTO> findDronesDisponiblesConSpecs(List<Long> idsDrones) {
-        if (idsDrones == null || idsDrones.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        // Generamos los signos de interrogación dinámicamente: "?, ?, ?"
-        String placeholders = String.join(",", Collections.nCopies(idsDrones.size(), "?"));
-
+    public List<DronSpecsDTO> findDronesDisponiblesConSpecs() {
         String sql = "SELECT " +
                 "    d.id_dron, " +
+                "    md.nombre_modelo, " +
                 "    md.autonomia_minutos, " +
                 "    md.capacidad_carga_kg, " +
                 "    md.velocidad_promedio_kmh " +
@@ -245,10 +238,8 @@ public class DronRepository {
                 "JOIN modelos_dron md ON d.id_modelo = md.id_modelo " +
                 "WHERE " +
                 // 2. Filtramos solo los que están "Disponible"
-                "    d.estado = 'Disponible' " +
-                // 3. Filtramos por la lista de ID que recibimos
-                "    AND d.id_dron IN (" + placeholders + ")";
+                "    d.estado = 'Disponible' ";
 
-        return jdbcTemplate.query(sql, new DronSpecsRowMapper(), idsDrones.toArray());
+        return jdbcTemplate.query(sql, new DronSpecsRowMapper());
     }
 }

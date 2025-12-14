@@ -25,7 +25,8 @@ CREATE TABLE IF NOT EXISTS modelos_dron (
     nombre_modelo VARCHAR(100) NOT NULL,
     fabricante VARCHAR(100),
     capacidad_carga_kg NUMERIC(5, 2),
-    autonomia_minutos INT
+    autonomia_minutos INT,
+    velocidad_promedio_kmh NUMERIC(5, 2)
 );
 
 -- Tabla de Drones

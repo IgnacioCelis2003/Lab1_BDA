@@ -110,12 +110,12 @@ public class MisionController {
      * Considera: Distancia (PostGIS), Disponibilidad y Autonomía v/s Velocidad del Dron.
      * Se accede vía POST /api/misiones/optimizar-ruta
      *
-     * @param request DTO que contiene los datos para obtener la ruta óptima.
+     * @param idMisiones Lista con los id de las misiones a optimizar
      * @return ResponseEntity con la ruta óptima.
      */
     @PostMapping("/optimizar-ruta")
-    public ResponseEntity<RutaOptimaResponseDTO> optimizarRuta(@RequestBody RutaOptimaRequestDTO request) {
-        RutaOptimaResponseDTO respuesta = misionService.generarRutaOptimaMultidron(request);
+    public ResponseEntity<RutaOptimaResponseDTO> optimizarRuta(@RequestBody List<Long> idMisiones) {
+        RutaOptimaResponseDTO respuesta = misionService.generarRutaOptimaMultidron(idMisiones);
         return ResponseEntity.ok(respuesta);
     }
 

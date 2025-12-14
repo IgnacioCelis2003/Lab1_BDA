@@ -38,6 +38,7 @@ public class ModeloDronService {
         existente.setFabricante(modelo.getFabricante());
         existente.setCapacidadCargaKg(modelo.getCapacidadCargaKg());
         existente.setAutonomiaMinutos(modelo.getAutonomiaMinutos());
+        existente.setVelocidadPromedioKmh(modelo.getVelocidadPromedioKmh());
 
         return modeloDronRepository.update(existente);
     }

@@ -21,6 +21,9 @@ public class ModeloDronRowMapper implements RowMapper<ModeloDron> {
         Integer autonomia = rs.getObject("autonomia_minutos") != null ? rs.getInt("autonomia_minutos") : null;
         m.setAutonomiaMinutos(autonomia);
 
+        Double velocidad_promedio = rs.getObject("velocidad_promedio_kmh") != null ? rs.getDouble("velocidad_promedio_kmh") : null;
+        m.setVelocidadPromedioKmh(velocidad_promedio);
+
         return m;
     }
 }
