@@ -89,7 +89,7 @@ public class MisionController {
      * Endpoint para asignar una misión existente a un dron específico.
      * Llama al procedimiento almacenado.
      * Se accede vía POST /api/misiones/1/asignar/5
-     * * @param idMision El ID de la misión (desde la URL).
+     * @param idMision El ID de la misión (desde la URL).
      * @param idDron El ID del dron (desde la URL).
      * @return ResponseEntity con estado 200 (OK) si tiene éxito.
      */
@@ -105,6 +105,24 @@ public class MisionController {
 
         // Si la llamada tiene éxito, devolvemos 200 OK.
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Genera una ruta óptima para una flota de drones.
+     * Considera: Distancia (PostGIS), Disponibilidad y Autonomía v/s Velocidad del Dron.
+     * Se accede vía POST /api/misiones/optimizar-ruta
+     * @param request DTO que contiene los datos para obtener la ruta optima
+     * @return ResponseEntity
+     */
+    @PostMapping("/optimizar-ruta")
+    public ResponseEntity<RutaOptimaResponseDTO> optimizarRuta(@RequestBody RutaOptimaRequestDTO request) {
+
+        // Llamamos al servicio
+        // El servicio debería devolver siempre un DTO RutaOptimaResponseDTO
+        RutaOptimaResponseDTO respuesta = misionService.generarRutaOptimaMultidron(request);
+
+        // Si la llamada tiene éxito, devolvemos 200 OK.
+        return ResponseEntity.ok(respuesta);
     }
 
     /**

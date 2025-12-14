@@ -1,9 +1,6 @@
 package com.Lab1BDA.Backend.repository;
 
-import com.Lab1BDA.Backend.dto.BateriaConsumoDTO;
-import com.Lab1BDA.Backend.dto.DesempenoMensualDTO;
-import com.Lab1BDA.Backend.dto.DesempenoTipoMisionDTO;
-import com.Lab1BDA.Backend.dto.ResumenMisionTipoDTO;
+import com.Lab1BDA.Backend.dto.*;
 import com.Lab1BDA.Backend.model.Mision;
 import com.Lab1BDA.Backend.repository.mappers.*;
 // YA NO NECESITAMOS 'org.postgis.PGgeometry'
@@ -17,8 +14,8 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.sql.Timestamp;
 import java.sql.Types; // Importamos Types
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,7 +25,6 @@ public class MisionRepository {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    // Esto (leer con ST_AsWKT) está correcto y se mantiene
     private final String BASE_SELECT = "SELECT id_mision, id_dron_asignado, id_tipo_mision, " +
             "id_operador_creador, fecha_creacion, fecha_inicio_planificada, fecha_fin_planificada, " +
             "fecha_inicio_real, fecha_fin_real, estado, ST_AsText(ruta::geometry) AS ruta_wkt FROM misiones";
@@ -44,7 +40,6 @@ public class MisionRepository {
     }
 
     public Mision save(Mision mision) {
-        // Este SQL (escribir con ST_GeogFromWKB) está correcto y se mantiene
         String sql = "INSERT INTO misiones (id_dron_asignado, id_tipo_mision, id_operador_creador, " +
                 "fecha_inicio_planificada, fecha_fin_planificada, estado, ruta) " +
                 "VALUES (?, ?, ?, ?, ?, CAST(? AS estado_mision), ST_GeogFromWKB(?))";
@@ -65,7 +60,6 @@ public class MisionRepository {
             ps.setObject(5, mision.getFechaFinPlanificada());
             ps.setString(6, mision.getEstado());
 
-            // --- CAMBIO AQUÍ ---
             // Convertimos el LineString de JTS a un array de bytes (WKB)
             if (mision.getRuta() != null) {
                 ps.setBytes(7, wkbWriter.write(mision.getRuta()));
@@ -83,13 +77,11 @@ public class MisionRepository {
     }
 
     public Mision update(Mision mision) {
-        // Este SQL (escribir con ST_GeogFromWKB) está correcto y se mantiene
         String sql = "UPDATE misiones SET id_dron_asignado = ?, id_tipo_mision = ?, " +
                 "fecha_inicio_planificada = ?, fecha_fin_planificada = ?, fecha_inicio_real = ?, " +
                 "fecha_fin_real = ?, estado = CAST(? AS estado_mision), ruta = ST_GeogFromWKB(?) " +
                 "WHERE id_mision = ?";
 
-        // --- CAMBIO AQUÍ ---
         // Convertimos el LineString a byte[] antes de pasarlo al update
         byte[] rutaWkb = (mision.getRuta() != null)
                 ? new WKBWriter().write(mision.getRuta())
@@ -282,13 +274,75 @@ public class MisionRepository {
      * @return Lista de ResumenMisionTipoDTO
      */
     public List<ResumenMisionTipoDTO> findResumenMisionesCompletadas() {
-        // La consulta es increíblemente simple, porque todo el trabajo
-        // pesado ya lo hizo la vista materializada.
+        // La consulta es simple porque el trabajo pesado ya lo hizo la vista materializada.
         String sql = "SELECT nombre_tipo, cantidad_total, promedio_horas " +
                 "FROM resumen_misiones_completadas " +
                 "ORDER BY nombre_tipo";
 
         return jdbcTemplate.query(sql, new ResumenMisionTipoRowMapper());
+    }
+
+    /**
+     * Calcula la matriz de distancias entre misiones usando PostGIS (ST_Distance).
+     * @param idsMisiones Lista de ID de las misiones a calcular su distancia
+     * @return Lista de distancia entre el origen y el destino de una misión
+     */
+    public List<DistanciaMisionDTO> calcularMatrizDistancias(List<Long> idsMisiones) {
+        if (idsMisiones == null || idsMisiones.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // Generamos los signos de interrogación: "?, ?, ?"
+        String placeholders = String.join(",", Collections.nCopies(idsMisiones.size(), "?"));
+
+        // Construimos el SQL con el mismo estilo que findDesempenoMensual
+        // Usamos String.format para inyectar los placeholders en los dos lugares donde van (%s)
+        //language=SQL
+        String sqlPattern = "SELECT " +
+                "    a.id_mision AS id_origen, " +
+                "    b.id_mision AS id_destino, " +
+                "    ST_Distance( " +
+                "        ST_Centroid(a.ruta::geometry)::geography, " +
+                "        ST_Centroid(b.ruta::geometry)::geography " +
+                "    ) AS distancia_metros " +
+                "FROM misiones a " +
+                "CROSS JOIN misiones b " +
+                "WHERE " +
+                "    a.id_mision IN (%s) " +
+                "    AND b.id_mision IN (%s) " +
+                "    AND a.id_mision != b.id_mision";
+
+        // Inyectamos los placeholders
+        String sql = String.format(sqlPattern, placeholders, placeholders);
+
+        // Preparamos los argumentos (la lista duplicada porque aparece 2 veces en la SQL)
+        Object[] args = new Object[idsMisiones.size() * 2];
+        for (int i = 0; i < idsMisiones.size(); i++) {
+            args[i] = idsMisiones.get(i);
+            args[idsMisiones.size() + i] = idsMisiones.get(i);
+        }
+
+        return jdbcTemplate.query(sql, new DistanciaMisionRowMapper(), args);
+    }
+
+    /**
+     * Recupera los detalles completos (fechas, ruta, tipo) de las misiones seleccionadas.
+     * Es vital para calcular la duración y pintar el mapa al final.
+     * @param ids Lista de los id de las misiones
+     * @return Lista de misiones con todos los datos
+     */
+    public List<Mision> findMisionesPorIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // Generamos los placeholders: "?, ?, ?"
+        String placeholders = String.join(",", Collections.nCopies(ids.size(), "?"));
+
+        // Reutilizamos la BASE_SELECT ya definida al inicio del archivo para no repetir todas las columnas.
+        String sql = BASE_SELECT + " WHERE id_mision IN (" + placeholders + ")";
+
+        return jdbcTemplate.query(sql, new MisionRowMapper(), ids.toArray());
     }
 
 }

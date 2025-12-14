@@ -16,10 +16,12 @@ import java.util.Map;
 @CrossOrigin(origins = "http://localhost:3000")
 public class DronController {
 
+    private final DronService dronService;
+
     @Autowired
-    private DronService dronService;
-
-
+    public DronController(DronService dronService) {
+        this.dronService = dronService;
+    }
 
     /**
      * Endpoint para crear un nuevo dron.

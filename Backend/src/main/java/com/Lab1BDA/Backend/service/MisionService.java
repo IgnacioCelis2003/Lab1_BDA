@@ -4,7 +4,9 @@ import com.Lab1BDA.Backend.dto.*;
 import com.Lab1BDA.Backend.exception.ResourceNotFoundException;
 import com.Lab1BDA.Backend.model.Mision;
 import com.Lab1BDA.Backend.model.Usuario;
+import com.Lab1BDA.Backend.repository.DronRepository;
 import com.Lab1BDA.Backend.repository.MisionRepository;
+import com.Lab1BDA.Backend.repository.TipoMisionRepository;
 import com.Lab1BDA.Backend.repository.UserRepository;
 import org.locationtech.jts.geom.Geometry; // Importación necesaria
 import org.locationtech.jts.geom.LineString;
@@ -13,13 +15,23 @@ import org.locationtech.jts.io.WKTReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class MisionService {
 
     @Autowired
     private MisionRepository misionRepository;
+
+    @Autowired
+    private TipoMisionRepository tipoMisionRepository;
+
+    @Autowired
+    private DronRepository dronRepository;
 
     @Autowired
     private UserRepository userRepository; // Necesario para obtener el creador
@@ -117,6 +129,51 @@ public class MisionService {
     }
 
     /**
+     * Lógica de negocio para asignar una lista de misiones a varios drones.
+     * Llama al procedimiento almacenado en la BD.
+     * @param request DTO con los datos de request para la ruta óptima.
+     * @return DTO con la ruta óptima de los drones
+     */
+    public RutaOptimaResponseDTO generarRutaOptimaMultidron(RutaOptimaRequestDTO request) {
+        // 1. Obtener datos de la BD
+        List<DronSpecsDTO> drones = dronRepository.findDronesDisponiblesConSpecs(request.idDrones());
+
+        // Obtenemos las misiones "crudas"
+        List<Mision> misionesRaw = misionRepository.findMisionesPorIds(request.idMisiones());
+
+        // Filtramos para quedarnos solo con las que realmente se pueden asignar
+        List<Mision> misiones = misionesRaw.stream()
+                .filter(m -> m.getIdDronAsignado() == null)      // Que no tenga dron
+                .filter(m -> "Pendiente".equals(m.getEstado()))  // Que esté Pendiente
+                .toList();
+
+        // Si después del filtro nos quedamos sin misiones, retornamos aviso
+        if (misiones.isEmpty()) {
+            return new RutaOptimaResponseDTO(new ArrayList<>(), new ArrayList<>(), "Ninguna misión válida (todas estaban asignadas o no pendientes)");
+        }
+
+        List<DistanciaMisionDTO> matrizDistancias = misionRepository.calcularMatrizDistancias(request.idMisiones());
+
+        // 2. Estructuras para guardar el progreso global
+        List<RutaAsignadaDTO> rutasFinales = new ArrayList<>();
+        Set<Long> misionesAsignadasIds = new HashSet<>();
+
+        // 3. Procesar cada dron uno por uno
+        for (DronSpecsDTO dron : drones) {
+            RutaAsignadaDTO ruta = planificarVueloDron(dron, misiones, matrizDistancias, misionesAsignadasIds);
+            rutasFinales.add(ruta);
+        }
+
+        // 4. Identificar misiones que sobraron (Huérfanas)
+        List<Long> huerfanas = misiones.stream()
+                .map(Mision::getIdMision)
+                .filter(id -> !misionesAsignadasIds.contains(id))
+                .toList();
+
+        return new RutaOptimaResponseDTO(rutasFinales, huerfanas, "Optimización finalizada.");
+    }
+
+    /**
      * Obtiene el reporte de desempeño por tipo de misión (Requisito #3).
      * @return Lista de DesempenoTipoMisionDTO
      */
@@ -150,6 +207,142 @@ public class MisionService {
      */
     public List<ResumenMisionTipoDTO> getReporteResumenMisiones() {
         return misionRepository.findResumenMisionesCompletadas();
+    }
+
+    // Métodos auxiliares
+    /**
+     * Intenta llenar la agenda de un solo dron hasta que se quede sin batería o carga.
+     * @param dron DTO con las especificaciones de un dron
+     * @param todasLasMisiones Lista de todas las misiones aún no asignadas
+     * @param matriz Matriz de la distancia entre misiones
+     * @param yaAsignadas ID de las misiones ya asignadas
+     * @return DTO con la ruta asignada a un dron
+     */
+    private RutaAsignadaDTO planificarVueloDron(DronSpecsDTO dron, List<Mision> todasLasMisiones,
+                                                List<DistanciaMisionDTO> matriz, Set<Long> yaAsignadas) {
+        List<MisionOrdenadaDTO> pasos = new ArrayList<>();
+
+        // Datos del Dron
+        double bateria = dron.autonomiaMinutos();
+
+        // Carga: Solo informativo, no lo usamos para restar.
+        double capacidadInformativa = dron.capacidadCargaKg();
+
+        double distTotal = 0.0;
+        double tiempoTotal = 0.0;
+        Long ubicacionActual = null; // null = Base
+
+        boolean puedeSeguir = true;
+
+        // Obtenemos la velocidad del dron
+        double velocidadKmh = dron.velocidadKmh();
+
+        // Se convierte a m/min
+        final double VELOCIDAD_METROS_MIN = (velocidadKmh * 1000.0) / 60.0;
+
+        while (puedeSeguir) {
+            // Pasamos la velocidad convertida al buscador
+            Mision candidata = buscarSiguienteMision(ubicacionActual, todasLasMisiones, matriz, yaAsignadas, bateria, VELOCIDAD_METROS_MIN);
+
+            if (candidata != null) {
+                yaAsignadas.add(candidata.getIdMision());
+                ubicacionActual = candidata.getIdMision();
+
+                double dist = obtenerDistancia(matriz, ubicacionActual, candidata.getIdMision());
+
+                // Usamos la velocidad convertida para calcular el tiempo de viaje
+                double costoTiempo = calcularCostoTiempo(candidata, dist, VELOCIDAD_METROS_MIN);
+
+                bateria -= costoTiempo;
+                distTotal += dist;
+                tiempoTotal += costoTiempo;
+
+                // Agregar paso
+                String nombreTipo = tipoMisionRepository.findById(candidata.getIdTipoMision())
+                        .map(t -> t.getNombreTipo()).orElse("Misión");
+
+                pasos.add(new MisionOrdenadaDTO(pasos.size() + 1, candidata.getIdMision(), nombreTipo, candidata.getRutaWKT()));
+            } else {
+                puedeSeguir = false;
+            }
+        }
+
+        return new RutaAsignadaDTO(dron.idDron(), dron.nombreModelo(), pasos, distTotal, tiempoTotal, bateria, capacidadInformativa);
+    }
+
+    /**
+     * Busca la misión no asignada más cercana que cumpla con las restricciones de batería y carga.
+     * @param origen misión de origen
+     * @param misiones Lista de las misiones aún no asignadas
+     * @param matriz Matriz de la distancia entre misiones
+     * @param asignadas Set con el id de las misiones ya asignadas al dron
+     * @param bateriaRestante cantidad de batería restante del dron
+     * @param velocidadMetrosMin velocidad del dron en metros por minuto
+     * @return Mision no asignada más cercana
+     */
+    private Mision buscarSiguienteMision(Long origen, List<Mision> misiones, List<DistanciaMisionDTO> matriz,
+                                         Set<Long> asignadas, double bateriaRestante, double velocidadMetrosMin) {
+        Mision mejor = null;
+        double menorDistancia = Double.MAX_VALUE;
+
+        for (Mision m : misiones) {
+            if (asignadas.contains(m.getIdMision())) continue;
+
+            double dist = obtenerDistancia(matriz, origen, m.getIdMision());
+
+            double costoTiempo = calcularCostoTiempo(m, dist, velocidadMetrosMin);
+
+            if (costoTiempo <= bateriaRestante) {
+                if (dist < menorDistancia) {
+                    menorDistancia = dist;
+                    mejor = m;
+                }
+            }
+        }
+        return mejor;
+    }
+
+    // Helpers Matemáticos
+    /**
+     * Obtiene la distancia entre dos misiones en metros
+     * @param matriz Matriz de la distancia entre misiones
+     * @param origen Misión de origen
+     * @param destino Misión de destino
+     * @return Distancia entre dos misiones
+     */
+    private double obtenerDistancia(List<DistanciaMisionDTO> matriz, Long origen, Long destino) {
+        if (origen == null) return 0.0;
+
+        return matriz.stream()
+                .filter(d -> (d.idOrigen().equals(origen) && d.idDestino().equals(destino)) ||
+                        (d.idOrigen().equals(destino) && d.idDestino().equals(origen)))
+                .mapToDouble(DistanciaMisionDTO::distanciaMetro)
+                .findFirst().orElse(100000.0);
+    }
+
+    /**
+     * Busca la misión no asignada más cercana que cumpla con las restricciones de batería y carga.
+     * @param m mision a la que se le calcula la duración
+     * @return Duración de la misión
+     */
+    private double calcularDuracionMision(Mision m) {
+        if (m.getFechaInicioPlanificada() != null && m.getFechaFinPlanificada() != null) {
+            long min = Duration.between(m.getFechaInicioPlanificada(), m.getFechaFinPlanificada()).toMinutes();
+            return Math.max(min, 10);
+        }
+        return 0.0;
+    }
+
+    /**
+     * Calcula el costo total en minutos (Viaje + Ejecución).
+     * @param m Misión a la que se le calcula
+     * @param distancia distancia entre misiones
+     * @param velocidadMetrosMin velocidad del dron
+     * @return costo de la misión
+     */
+    private double calcularCostoTiempo(Mision m, double distancia, double velocidadMetrosMin) {
+        double tiempoViaje = distancia / velocidadMetrosMin;
+        return tiempoViaje + calcularDuracionMision(m);
     }
 
 }

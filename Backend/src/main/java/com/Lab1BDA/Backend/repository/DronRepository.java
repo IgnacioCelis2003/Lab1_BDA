@@ -1,19 +1,20 @@
 package com.Lab1BDA.Backend.repository;
 
-import com.Lab1BDA.Backend.dto.AnalisisGeograficoDTO;
-import com.Lab1BDA.Backend.dto.DronFalloDTO;
-import com.Lab1BDA.Backend.dto.DronInactivoDTO;
-import com.Lab1BDA.Backend.dto.DuracionVueloDTO;
+import com.Lab1BDA.Backend.dto.*;
 import com.Lab1BDA.Backend.model.Dron;
 import com.Lab1BDA.Backend.repository.mappers.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,8 +23,6 @@ public class DronRepository {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
-
-    // ... (los métodos findAll y findById que ya teníamos) ...
 
     /**
      * Guarda un nuevo dron en la base de datos.
@@ -69,8 +68,6 @@ public class DronRepository {
         String sql = "DELETE FROM drones WHERE id_dron = ?";
         jdbcTemplate.update(sql, id);
     }
-
-    // --- MÉTODOS QUE YA TENÍAMOS ---
 
     /**
      * Obtiene todos los drones de la base de datos.
@@ -223,4 +220,35 @@ public class DronRepository {
         return jdbcTemplate.query(sql, new AnalisisGeograficoRowMapper(), longitud, latitud);
     }
 
+    /**
+     * Consulta para funcionalidad clave del sistema: optimización de rutas
+     * Obtiene especificaciones técnicas (autonomía, carga) realizando JOIN con modelos_dron.
+     * Filtra para traer solo drones con estado 'Disponible'.
+     * @param idsDrones lista de los ID de todos los drones
+     * @return Lista de DronSpecsDTO
+     */
+    public List<DronSpecsDTO> findDronesDisponiblesConSpecs(List<Long> idsDrones) {
+        if (idsDrones == null || idsDrones.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // Generamos los signos de interrogación dinámicamente: "?, ?, ?"
+        String placeholders = String.join(",", Collections.nCopies(idsDrones.size(), "?"));
+
+        String sql = "SELECT " +
+                "    d.id_dron, " +
+                "    md.autonomia_minutos, " +
+                "    md.capacidad_carga_kg, " +
+                "    md.velocidad_promedio_kmh " +
+                "FROM drones d " +
+                // 1. Unimos con modelos_dron para obtener autonomía y carga
+                "JOIN modelos_dron md ON d.id_modelo = md.id_modelo " +
+                "WHERE " +
+                // 2. Filtramos solo los que están "Disponible"
+                "    d.estado = 'Disponible' " +
+                // 3. Filtramos por la lista de ID que recibimos
+                "    AND d.id_dron IN (" + placeholders + ")";
+
+        return jdbcTemplate.query(sql, new DronSpecsRowMapper(), idsDrones.toArray());
+    }
 }
