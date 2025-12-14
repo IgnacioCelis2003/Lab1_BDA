@@ -2,12 +2,8 @@ package com.Lab1BDA.Backend.service;
 
 import com.Lab1BDA.Backend.dto.*;
 import com.Lab1BDA.Backend.exception.ResourceNotFoundException;
-import com.Lab1BDA.Backend.model.Mision;
-import com.Lab1BDA.Backend.model.Usuario;
-import com.Lab1BDA.Backend.repository.DronRepository;
-import com.Lab1BDA.Backend.repository.MisionRepository;
-import com.Lab1BDA.Backend.repository.TipoMisionRepository;
-import com.Lab1BDA.Backend.repository.UserRepository;
+import com.Lab1BDA.Backend.model.*;
+import com.Lab1BDA.Backend.repository.*;
 import org.locationtech.jts.geom.Geometry; // Importación necesaria
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.io.ParseException;
@@ -16,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -38,6 +35,8 @@ public class MisionService {
 
     // Este WKTReader convierte el String del DTO a un objeto LineString
     private final WKTReader wktReader = new WKTReader();
+    @Autowired
+    private ModeloDronRepository modeloDronRepository;
 
     public List<Mision> getTodasLasMisiones() {
         return misionRepository.findAll();
@@ -222,7 +221,7 @@ public class MisionService {
      * @param yaAsignadas ID de las misiones ya asignadas
      * @return DTO con la ruta asignada a un dron
      */
-    private RutaAsignadaDTO planificarVueloDron(DronSpecsDTO dron, List<Mision> todasLasMisiones,
+     private RutaAsignadaDTO planificarVueloDron(DronSpecsDTO dron, List<Mision> todasLasMisiones,
                                                 List<DistanciaMisionDTO> matriz, Set<Long> yaAsignadas) {
         List<MisionOrdenadaDTO> pasos = new ArrayList<>();
 
@@ -347,6 +346,23 @@ public class MisionService {
     private double calcularCostoTiempo(Mision m, double distancia, double velocidadMetrosMin) {
         double tiempoViaje = distancia / velocidadMetrosMin;
         return tiempoViaje + calcularDuracionMision(m);
+    }
+
+    private void iniciarMision(long id){
+        Mision mision = misionRepository.findById(id).get();
+        mision.setEstado("En Progreso");
+        Dron dron = dronRepository.findById(mision.getIdDronAsignado())
+                .orElseThrow();
+        ModeloDron modelo = modeloDronRepository.findById(dron.getIdModelo()).orElseThrow();
+        dron.setEstado("En Vuelo");
+        RegistroVuelo registroVuelo = new RegistroVuelo();
+        registroVuelo.setIdMision(id);
+        registroVuelo.setTimestamp(LocalDateTime.now());
+        registroVuelo.setCoordenadas(mision.getRuta().getStartPoint());
+        registroVuelo.setNivelBateriaPorcentaje(100.0);
+        registroVuelo.setVelocidadKmh(modelo.getVelocidadPromedioKmh());
+        dronRepository.save(dron);
+        misionRepository.save(mision);
     }
 
 }

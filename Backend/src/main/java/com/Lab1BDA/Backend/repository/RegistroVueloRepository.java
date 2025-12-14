@@ -87,4 +87,5 @@ public class RegistroVueloRepository {
         LocalDateTime finIntervalo = timestamp.plusSeconds(5);
         return jdbcTemplate.query(sql, new RegistroVueloRowMapper(), timestamp, finIntervalo);
     }
+
 }
