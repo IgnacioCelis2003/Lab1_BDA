@@ -67,7 +67,7 @@ async function onSaved() {
   await loadModels();
 }
 
-// ✅ Eliminar dron
+// Eliminar dron
 async function deleteDron(d: any) {
   const idDron = d?.idDron;
   if (!idDron) return;

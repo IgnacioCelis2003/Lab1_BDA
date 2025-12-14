@@ -76,7 +76,7 @@ async function submit() {
 
     if (isEdit.value && props.modelo) {
       await $fetch(
-        `http://localhost:8080/api/modelos/actualizar/${props.modelo.idModelo}`,
+        `/api/modelos/actualizar/${props.modelo.idModelo}`,
         {
           method: "PUT",
           body,
@@ -87,7 +87,7 @@ async function submit() {
       return;
     }
 
-    await $fetch("http://localhost:8080/api/modelos/crear", {
+    await $fetch('/api/modelos/crear', {
       method: "POST",
       body,
     });
