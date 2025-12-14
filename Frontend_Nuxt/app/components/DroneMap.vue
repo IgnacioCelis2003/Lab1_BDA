@@ -77,7 +77,7 @@ onMounted(async () => {
 
   // Primer fetch y actualización periódica
   await fetchDrones();
-  setInterval(fetchDrones, 5000);
+  // setInterval(fetchDrones, 5000);
 });
 </script>
 

@@ -86,16 +86,26 @@ async function deleteModelo(m: any) {
       {{ error.statusMessage || error.message }}
     </article>
 
-    <section v-else class="grid">
-      <article v-for="m in modelos" :key="m.idModelo" class="card">
-        <h3>{{ m.nombreModelo }}</h3>
-        <p><strong>Fabricante:</strong> {{ m.fabricante }}</p>
-        <p><strong>Capacidad (kg):</strong> {{ m.capacidadCargaKg }}</p>
-        <p><strong>Autonomía (min):</strong> {{ m.autonomiaMinutos }}</p>
+    <section v-else class="models-grid">
+      <article v-for="m in modelos" :key="m.idModelo" class="card model-card">
+        <div class="card-header">
+          <h3 style="margin: 0">{{ m.nombreModelo }}</h3>
+        </div>
 
-        <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem">
+        <div class="card-content">
+          <p class="info-row">
+            <strong>Fabricante:</strong> {{ m.fabricante }}
+          </p>
+          <p class="info-row">
+            <strong>Capacidad:</strong> {{ m.capacidadCargaKg }} kg
+          </p>
+          <p class="info-row">
+            <strong>Autonomía:</strong> {{ m.autonomiaMinutos }} min
+          </p>
+        </div>
+
+        <div class="card-actions">
           <button class="secondary" @click="openEdit(m)">Editar</button>
-
           <button
             class="contrast"
             :disabled="deletingId === m.idModelo"
@@ -109,3 +119,64 @@ async function deleteModelo(m: any) {
     </section>
   </main>
 </template>
+
+<style scoped>
+.models-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .models-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.model-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0;
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.card-content {
+  padding: 1rem;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.info-row {
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.info-row strong {
+  display: inline-block;
+  min-width: 100px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.card-actions {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.card-actions button {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+}
+</style>

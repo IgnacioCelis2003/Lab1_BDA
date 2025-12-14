@@ -14,7 +14,7 @@ const {
   error,
   status,
   refresh,
-} = await useFetch("http://localhost:8080/api/tipos-mision");
+} = await useFetch(`/api/misiones/tipos/all`);
 
 function onCreated() {
   refresh();
@@ -94,15 +94,20 @@ async function deleteTipo(t: any) {
       {{ error.statusMessage || error.message }}
     </article>
 
-    <section v-else class="grid">
-      <article v-for="t in tipos" :key="t.idTipoMision" class="card">
-        <h3>{{ t.nombreTipo }}</h3>
+    <section v-else class="tipos-grid">
+      <article v-for="t in tipos" :key="t.idTipoMision" class="card tipo-card">
+        <div class="card-header">
+          <h3 style="margin: 0">{{ t.nombreTipo }}</h3>
+        </div>
 
-        <p><strong>ID:</strong> {{ t.idTipoMision }}</p>
+        <div class="card-content">
+          <p class="info-row">
+            <strong>ID:</strong> {{ t.idTipoMision }}
+          </p>
+        </div>
 
-        <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem">
+        <div class="card-actions">
           <button class="secondary" @click="openEdit(t)">Editar</button>
-
           <button
             class="contrast"
             :disabled="deletingId === t.idTipoMision"
@@ -116,3 +121,64 @@ async function deleteTipo(t: any) {
     </section>
   </main>
 </template>
+
+<style scoped>
+.tipos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .tipos-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tipo-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0;
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.card-content {
+  padding: 1rem;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.info-row {
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.info-row strong {
+  display: inline-block;
+  min-width: 100px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.card-actions {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.card-actions button {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+}
+</style>

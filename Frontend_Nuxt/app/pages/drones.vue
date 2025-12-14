@@ -126,35 +126,43 @@ async function deleteDron(d: any) {
       {{ error.statusMessage || error.message }}
     </article>
 
-    <section v-else class="grid">
-      <article v-for="d in drones" :key="d.idDron" class="card">
-        <h3>Dron #{{ d.idDron }}</h3>
-
-        <p><strong>Modelo ID:</strong> {{ d.idModelo }}</p>
-        <p v-if="modelsMap[d.idModelo]">
-          <strong>Modelo:</strong> {{ modelsMap[d.idModelo].nombreModelo }}
-        </p>
-        <p v-else><em>Información del modelo cargando...</em></p>
-
-        <p><strong>Estado:</strong> {{ d.estado }}</p>
-
-        <div v-if="modelsMap[d.idModelo]">
-          <p>
-            <strong>Fabricante:</strong> {{ modelsMap[d.idModelo].fabricante }}
-          </p>
-          <p>
-            <strong>Capacidad (kg):</strong>
-            {{ modelsMap[d.idModelo].capacidadCargaKg }}
-          </p>
-          <p>
-            <strong>Autonomía (min):</strong>
-            {{ modelsMap[d.idModelo].autonomiaMinutos }}
-          </p>
+    <section v-else class="drones-grid">
+      <article v-for="d in drones" :key="d.idDron" class="card drone-card">
+        <div class="card-header">
+          <h3 style="margin: 0">Dron #{{ d.idDron }}</h3>
         </div>
 
-        <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem">
-          <button class="secondary" @click="openEdit(d)">Editar modelo</button>
+        <div class="card-content">
+          <p class="info-row">
+            <strong>Modelo ID:</strong> {{ d.idModelo }}
+          </p>
+          <p class="info-row" v-if="modelsMap[d.idModelo]">
+            <strong>Modelo:</strong> {{ modelsMap[d.idModelo].nombreModelo }}
+          </p>
+          <p class="info-row" v-else><em>Cargando información...</em></p>
 
+          <p class="info-row">
+            <strong>Estado:</strong>
+            <span :class="d.estado === 'Disponible' ? 'status-available' : 'status-maintenance'">
+              {{ d.estado }}
+            </span>
+          </p>
+
+          <div v-if="modelsMap[d.idModelo]" class="model-details">
+            <p class="info-row">
+              <strong>Fabricante:</strong> {{ modelsMap[d.idModelo].fabricante }}
+            </p>
+            <p class="info-row">
+              <strong>Capacidad:</strong> {{ modelsMap[d.idModelo].capacidadCargaKg }} kg
+            </p>
+            <p class="info-row">
+              <strong>Autonomía:</strong> {{ modelsMap[d.idModelo].autonomiaMinutos }} min
+            </p>
+          </div>
+        </div>
+
+        <div class="card-actions">
+          <button class="secondary" @click="openEdit(d)">Editar</button>
           <button
             class="contrast"
             :disabled="deletingId === d.idDron"
@@ -178,3 +186,86 @@ async function deleteDron(d: any) {
     />
   </main>
 </template>
+
+<style scoped>
+.drones-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .drones-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.drone-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0;
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.card-content {
+  padding: 1rem;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.info-row {
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.info-row strong {
+  display: inline-block;
+  min-width: 100px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.status-available {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.status-maintenance {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.model-details {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.card-actions {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.card-actions button {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+}
+</style>
