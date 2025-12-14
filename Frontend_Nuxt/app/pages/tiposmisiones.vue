@@ -1,56 +1,59 @@
 <script setup lang="ts">
+import MisionTypeCreate from "~/components/MisionTypeCreate.vue";
 import { ref } from "vue";
 
 const showModal = ref(false);
+
 const showEditModal = ref(false);
-const selectedModel = ref<any | null>(null);
+const selectedTipo = ref<any | null>(null);
+
 const deletingId = ref<number | null>(null);
 
 const {
-  data: modelos,
+  data: tipos,
   error,
   status,
   refresh,
-} = await useFetch("/api/modelos/all");
+} = await useFetch("http://localhost:8080/api/tipos-mision");
 
 function onCreated() {
   refresh();
   showModal.value = false;
 }
 
-function openEdit(m: any) {
-  selectedModel.value = { ...m };
+function openEdit(t: any) {
+  selectedTipo.value = { ...t };
   showEditModal.value = true;
 }
 
 function onSaved() {
   refresh();
   showEditModal.value = false;
-  selectedModel.value = null;
+  selectedTipo.value = null;
 }
 
-async function deleteModelo(m: any) {
-  const id = m?.idModelo;
+async function deleteTipo(t: any) {
+  const id = t?.idTipoMision;
   if (!id) return;
 
-  const ok = confirm(`¿Seguro que quieres eliminar el modelo #${id}?`);
+  const ok = confirm(`¿Seguro que quieres eliminar el tipo de misión #${id}?`);
   if (!ok) return;
 
   deletingId.value = id;
 
   try {
-    await $fetch(`http://localhost:8080/api/modelos/eliminar/${id}`, {
+    await $fetch(`http://localhost:8080/api/tipos-mision/eliminar/${id}`, {
       method: "DELETE",
     });
 
-    if (selectedModel.value?.idModelo === id) {
+    if (selectedTipo.value?.idTipoMision === id) {
       showEditModal.value = false;
-      selectedModel.value = null;
+      selectedTipo.value = null;
     }
 
     await refresh();
   } catch (e: any) {
-    alert(e?.data?.message || e?.message || "Error al eliminar modelo");
+    alert(e?.data?.message || e?.message || "Error al eliminar tipo de misión");
   } finally {
     deletingId.value = null;
   }
@@ -67,21 +70,21 @@ async function deleteModelo(m: any) {
           align-items: center;
         "
       >
-        <h2>Modelos Disponibles</h2>
+        <h2>Tipos de Misión</h2>
         <div style="display: flex; gap: 0.5rem">
-          <NuxtLink to="/drones" class="secondary">Volver</NuxtLink>
+          <NuxtLink to="/misiones" class="secondary">Volver</NuxtLink>
           <button class="contrast" @click="showModal = true">
-            Agregar Modelo
+            Agregar Tipo
           </button>
         </div>
       </div>
     </div>
 
-    <ModelCreateModal v-model:show="showModal" @created="onCreated" />
+    <MisionTypeCreate v-model:show="showModal" @created="onCreated" />
 
-    <ModelCreateModal
+    <MisionTypeCreate
       v-model:show="showEditModal"
-      :modelo="selectedModel"
+      :tipo="selectedTipo"
       @saved="onSaved"
     />
 
@@ -92,22 +95,21 @@ async function deleteModelo(m: any) {
     </article>
 
     <section v-else class="grid">
-      <article v-for="m in modelos" :key="m.idModelo" class="card">
-        <h3>{{ m.nombreModelo }}</h3>
-        <p><strong>Fabricante:</strong> {{ m.fabricante }}</p>
-        <p><strong>Capacidad (kg):</strong> {{ m.capacidadCargaKg }}</p>
-        <p><strong>Autonomía (min):</strong> {{ m.autonomiaMinutos }}</p>
+      <article v-for="t in tipos" :key="t.idTipoMision" class="card">
+        <h3>{{ t.nombreTipo }}</h3>
+
+        <p><strong>ID:</strong> {{ t.idTipoMision }}</p>
 
         <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem">
-          <button class="secondary" @click="openEdit(m)">Editar</button>
+          <button class="secondary" @click="openEdit(t)">Editar</button>
 
           <button
             class="contrast"
-            :disabled="deletingId === m.idModelo"
-            :aria-busy="deletingId === m.idModelo"
-            @click="deleteModelo(m)"
+            :disabled="deletingId === t.idTipoMision"
+            :aria-busy="deletingId === t.idTipoMision"
+            @click="deleteTipo(t)"
           >
-            {{ deletingId === m.idModelo ? "Eliminando..." : "Eliminar" }}
+            {{ deletingId === t.idTipoMision ? "Eliminando..." : "Eliminar" }}
           </button>
         </div>
       </article>

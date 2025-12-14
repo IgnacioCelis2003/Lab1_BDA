@@ -5,7 +5,7 @@ import com.Lab1BDA.Backend.model.Mision;
 import com.Lab1BDA.Backend.service.MisionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication; // ¡Importante!
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -43,41 +43,43 @@ public class MisionController {
 
     /**
      * Endpoint para crear una nueva misión.
-     * POST /api/misiones
-     * @param misionDTO Los datos de la misión (desde el cuerpo JSON).
-     * @param authentication Spring Security inyecta esto automáticamente
-     * con los datos del usuario autenticado (del token).
+     * POST /api/misiones/crear
+     *
+     * @param misionDTO       Los datos de la misión (desde el cuerpo JSON).
+     * @param authentication  Spring Security inyecta esto automáticamente
+     *                        con los datos del usuario autenticado (del token).
      * @return La misión creada (con HTTP 201 Created).
      */
     @PostMapping("/crear")
-    public ResponseEntity<Mision> crearMision(@RequestBody MisionRequestDTO misionDTO,
-                                              Authentication authentication) {
-
-        // Obtenemos el email (que es el "username" en nuestro JwtTokenProvider)
-        // del usuario que está llamando a este endpoint.
+    public ResponseEntity<Mision> crearMision(
+            @RequestBody MisionRequestDTO misionDTO,
+            Authentication authentication
+    ) {
+        // Email del usuario autenticado (username del JWT)
         String emailCreador = authentication.getName();
 
         Mision misionCreada = misionService.crearMision(misionDTO, emailCreador);
 
-        // Devolvemos un 201 Created con la ubicación del nuevo recurso
         URI location = URI.create("/api/misiones/" + misionCreada.getIdMision());
         return ResponseEntity.created(location).body(misionCreada);
     }
 
     /**
      * Endpoint para actualizar una misión existente.
-     * PUT /api/misiones/{id}
+     * PUT /api/misiones/actualizar/{id}
      */
     @PutMapping("/actualizar/{id}")
-    public ResponseEntity<Mision> actualizarMision(@PathVariable Long id,
-                                                   @RequestBody MisionRequestDTO misionDTO) {
+    public ResponseEntity<Mision> actualizarMision(
+            @PathVariable Long id,
+            @RequestBody MisionRequestDTO misionDTO
+    ) {
         Mision misionActualizada = misionService.actualizarMision(id, misionDTO);
         return ResponseEntity.ok(misionActualizada);
     }
 
     /**
      * Endpoint para eliminar una misión.
-     * DELETE /api/misiones/{id}
+     * DELETE /api/misiones/eliminar/{id}
      */
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Void> eliminarMision(@PathVariable("id") Long id) {
@@ -88,22 +90,18 @@ public class MisionController {
     /**
      * Endpoint para asignar una misión existente a un dron específico.
      * Llama al procedimiento almacenado.
-     * Se accede vía POST /api/misiones/1/asignar/5
+     * Se accede vía POST /api/misiones/{idMision}/asignar/{idDron}
+     *
      * @param idMision El ID de la misión (desde la URL).
-     * @param idDron El ID del dron (desde la URL).
+     * @param idDron   El ID del dron (desde la URL).
      * @return ResponseEntity con estado 200 (OK) si tiene éxito.
      */
     @PostMapping("/{idMision}/asignar/{idDron}")
     public ResponseEntity<Void> asignarMision(
             @PathVariable("idMision") Long idMision,
-            @PathVariable("idDron") Long idDron) {
-
-        // Simplemente llamamos al servicio.
-        // Si el servicio (o el SP) lanza una excepción,
-        // Spring la manejará y devolverá un error (ej. 500 o 400).
+            @PathVariable("idDron") Long idDron
+    ) {
         misionService.asignarMisionADron(idMision, idDron);
-
-        // Si la llamada tiene éxito, devolvemos 200 OK.
         return ResponseEntity.ok().build();
     }
 
@@ -111,17 +109,13 @@ public class MisionController {
      * Genera una ruta óptima para una flota de drones.
      * Considera: Distancia (PostGIS), Disponibilidad y Autonomía v/s Velocidad del Dron.
      * Se accede vía POST /api/misiones/optimizar-ruta
-     * @param request DTO que contiene los datos para obtener la ruta optima
-     * @return ResponseEntity
+     *
+     * @param request DTO que contiene los datos para obtener la ruta óptima.
+     * @return ResponseEntity con la ruta óptima.
      */
     @PostMapping("/optimizar-ruta")
     public ResponseEntity<RutaOptimaResponseDTO> optimizarRuta(@RequestBody RutaOptimaRequestDTO request) {
-
-        // Llamamos al servicio
-        // El servicio debería devolver siempre un DTO RutaOptimaResponseDTO
         RutaOptimaResponseDTO respuesta = misionService.generarRutaOptimaMultidron(request);
-
-        // Si la llamada tiene éxito, devolvemos 200 OK.
         return ResponseEntity.ok(respuesta);
     }
 
@@ -132,38 +126,41 @@ public class MisionController {
      */
     @GetMapping("/reportes/desempeno-tipo")
     public ResponseEntity<List<DesempenoTipoMisionDTO>> getReporteDesempenoTipoMision() {
-        List<DesempenoTipoMisionDTO> reporte = misionService.getReporteDesempenoTipoMision();
+        List<DesempenoTipoMisionDTO> reporte =
+                misionService.getReporteDesempenoTipoMision();
         return ResponseEntity.ok(reporte);
     }
 
     /**
-     * Endpoint para el Reporte #4: Patrones de Consumo de Batería.
-     * Se accede vía GET /api/misiones/reportes/consumo-bateria
+     * Reporte #4: Patrones de Consumo de Batería.
+     * GET /api/misiones/reportes/consumo-bateria
      */
     @GetMapping("/reportes/consumo-bateria")
     public ResponseEntity<List<BateriaConsumoDTO>> getReporteConsumoBateria() {
-        List<BateriaConsumoDTO> reporte = misionService.getReporteConsumoBateria();
+        List<BateriaConsumoDTO> reporte =
+                misionService.getReporteConsumoBateria();
         return ResponseEntity.ok(reporte);
     }
 
     /**
-     * Endpoint para el Reporte #5: Análisis de Desempeño Mensual.
-     * Se accede vía GET /api/misiones/reportes/desempeno-mensual
+     * Reporte #5: Análisis de Desempeño Mensual.
+     * GET /api/misiones/reportes/desempeno-mensual
      */
     @GetMapping("/reportes/desempeno-mensual")
     public ResponseEntity<List<DesempenoMensualDTO>> getReporteDesempenoMensual() {
-        List<DesempenoMensualDTO> reporte = misionService.getReporteDesempenoMensual();
+        List<DesempenoMensualDTO> reporte =
+                misionService.getReporteDesempenoMensual();
         return ResponseEntity.ok(reporte);
     }
 
     /**
-     * Endpoint para el Reporte #10: Resumen de Misiones por Tipo (Vista Materializada).
-     * Se accede vía GET /api/misiones/reportes/resumen-tipo
+     * Reporte #10: Resumen de Misiones por Tipo (Vista Materializada).
+     * GET /api/misiones/reportes/resumen-tipo
      */
     @GetMapping("/reportes/resumen-tipo")
     public ResponseEntity<List<ResumenMisionTipoDTO>> getReporteResumenMisiones() {
-        List<ResumenMisionTipoDTO> reporte = misionService.getReporteResumenMisiones();
+        List<ResumenMisionTipoDTO> reporte =
+                misionService.getReporteResumenMisiones();
         return ResponseEntity.ok(reporte);
     }
-
 }

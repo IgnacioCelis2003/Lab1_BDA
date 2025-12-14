@@ -40,9 +40,23 @@ public class TipoMisionRepository {
             return ps;
         }, keyHolder);
 
-        tipoMision.setIdTipoMision(keyHolder.getKey().longValue());
+        var keys = keyHolder.getKeys();
+        if (keys == null) {
+            throw new IllegalStateException("No se retornaron claves generadas");
+        }
+
+        Object rawId = keys.get("id_tipo_mision");
+        if (rawId == null) rawId = keys.get("idTipoMision");
+        if (rawId == null) rawId = keys.get("ID_TIPO_MISION");
+
+        if (rawId == null) {
+            throw new IllegalStateException("No se encontró la clave generada id_tipo_mision");
+        }
+
+        tipoMision.setIdTipoMision(((Number) rawId).longValue());
         return tipoMision;
     }
+
 
     public TipoMision update(TipoMision tipoMision) {
         String sql = "UPDATE tipos_mision SET nombre_tipo = ? WHERE id_tipo_mision = ?";
