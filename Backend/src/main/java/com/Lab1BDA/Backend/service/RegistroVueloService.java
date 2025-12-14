@@ -1,6 +1,7 @@
 package com.Lab1BDA.Backend.service;
 
 import com.Lab1BDA.Backend.dto.RegistroVueloRequestDTO;
+import com.Lab1BDA.Backend.dto.UbicacionDTO;
 import com.Lab1BDA.Backend.model.RegistroVuelo;
 import com.Lab1BDA.Backend.repository.RegistroVueloRepository;
 import org.locationtech.jts.geom.Geometry;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -58,5 +60,34 @@ public class RegistroVueloService {
      */
     public List<RegistroVuelo> getTelemetriaPorMision(Long idMision) {
         return registroVueloRepository.findByMisionId(idMision);
+    }
+
+
+    /**
+     * Pasa un registro de vuelo a UbicacionDTO, para mostrarlo en el mapa.
+     * @param registro
+     * @return
+     */
+    public UbicacionDTO registroToUbicacion(RegistroVuelo registro) {
+        return new UbicacionDTO(
+                registro.getIdMision(),
+                registro.getTimestamp(),
+                registro.getCoordenadas().getX(),
+                registro.getCoordenadas().getY(),
+                registro.getNivelBateriaPorcentaje()
+        );
+    }
+
+    /**
+     * Obtiene las ubicaciones de todos los drones activos en un determinado momento.
+     * @return
+     */
+    public List<UbicacionDTO> getMonitoreo(){
+        List<RegistroVuelo> registros = registroVueloRepository.findByTimestamp(LocalDateTime.now());
+        List<UbicacionDTO> ubicaciones = new ArrayList<>();
+        for (RegistroVuelo registro : registros) {
+            ubicaciones.add(registroToUbicacion(registro));
+        }
+        return ubicaciones;
     }
 }

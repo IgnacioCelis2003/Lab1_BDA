@@ -24,6 +24,11 @@ const { data: movies, error, status} = await useFetch('/api/movie', {
                 <h3>Resumen de Misiones</h3>
                 <p>Estadísticas y resúmenes por tipo de misión.</p>
             </NuxtLink>
+
+            <NuxtLink to="/monitoreo" class="card">
+                <h3>Monitoreo en tiempo real</h3>
+                <p>Posiciones de los drones activos.</p>
+            </NuxtLink>
         </div>
 
             <!-- Imagen centrada debajo del grid -->

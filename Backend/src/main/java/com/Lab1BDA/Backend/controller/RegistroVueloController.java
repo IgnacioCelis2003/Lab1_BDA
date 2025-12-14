@@ -1,6 +1,7 @@
 package com.Lab1BDA.Backend.controller;
 
 import com.Lab1BDA.Backend.dto.RegistroVueloRequestDTO;
+import com.Lab1BDA.Backend.dto.UbicacionDTO;
 import com.Lab1BDA.Backend.model.RegistroVuelo;
 import com.Lab1BDA.Backend.service.RegistroVueloService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/telemetria")
+@CrossOrigin(origins = "http://localhost:3000")
 public class RegistroVueloController {
 
     @Autowired
@@ -43,5 +45,11 @@ public class RegistroVueloController {
 
         List<RegistroVuelo> telemetria = registroVueloService.getTelemetriaPorMision(idMision);
         return ResponseEntity.ok(telemetria);
+    }
+
+    @GetMapping("/monitoreo")
+    public ResponseEntity<List<UbicacionDTO>> getMonitoreo() {
+        List<UbicacionDTO> ubicaciones = registroVueloService.getMonitoreo();
+        return ResponseEntity.ok(ubicaciones);
     }
 }

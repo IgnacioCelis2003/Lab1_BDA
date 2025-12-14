@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Types;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -23,7 +24,7 @@ public class RegistroVueloRepository {
     // Consulta base para LEER registros (usando ST_AsWKT como en MisionRowMapper)
     private final String BASE_SELECT = "SELECT id_registro_vuelo, id_mision, \"timestamp\", " +
             "altitud_msnm, velocidad_kmh, nivel_bateria_porcentaje, " +
-            "ST_AsWKT(coordenadas) AS coordenadas_wkt " +
+            "ST_AsText(coordenadas) AS coordenadas_wkt " +
             "FROM registro_vuelo";
 
     /**
@@ -74,5 +75,15 @@ public class RegistroVueloRepository {
     public List<RegistroVuelo> findByMisionId(Long idMision) {
         String sql = BASE_SELECT + " WHERE id_mision = ? ORDER BY \"timestamp\" ASC";
         return jdbcTemplate.query(sql, new RegistroVueloRowMapper(), idMision);
+    }
+
+    /**
+     * Busca todos los registros de telemetría con cierto timestamp.
+     * @param timestamp
+     * @return
+     */
+    public List<RegistroVuelo> findByTimestamp(LocalDateTime timestamp) {
+        String sql = BASE_SELECT + " WHERE timestamp = ?";
+        return jdbcTemplate.query(sql, new RegistroVueloRowMapper(), timestamp);
     }
 }
