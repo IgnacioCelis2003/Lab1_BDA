@@ -149,6 +149,8 @@ public class RegistroVueloService {
                 nuevaLat = destino.getY();
                 nuevaLon = destino.getX();
                 mision.setEstado("Completada");
+                dron.setEstado("Disponible");
+                dronRepository.save(dron);
                 misionRepository.save(mision);
             } else {
                 double modulo = Math.sqrt(dx*dx + dy*dy);
@@ -169,4 +171,11 @@ public class RegistroVueloService {
         }
         return registrosActualizados;
     }
+
+//    //Registro por id de dron
+//    public List<RegistroVuelo> getRegistroVuelo(long id) {
+//        //  obtener mision con id de dron
+//        long idMision = misionRepository.findByDronId(id).getId().orElseThrow();
+//        return registroVueloRepository.findByMisionId(idMision);
+//    }
 }
