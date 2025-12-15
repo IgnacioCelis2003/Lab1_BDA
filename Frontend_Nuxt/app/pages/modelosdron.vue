@@ -40,7 +40,7 @@ async function deleteModelo(m: any) {
 
   try {
     await $fetch(`/api/modelos/eliminar/${id}`, {
-      method: 'DELETE'
+      method: "DELETE",
     });
     await refresh();
   } catch (e) {
@@ -101,6 +101,10 @@ async function deleteModelo(m: any) {
           </p>
           <p class="info-row">
             <strong>Autonomía:</strong> {{ m.autonomiaMinutos }} min
+          </p>
+          <p class="info-row">
+            <strong>Velocidad (promedio):</strong>
+            {{ m.velocidadPromedioKmh }} km/h
           </p>
         </div>
 

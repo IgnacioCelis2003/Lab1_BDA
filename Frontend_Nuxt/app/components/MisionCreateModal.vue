@@ -27,13 +27,21 @@
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
       "
     >
-      <h3>Nueva Misión</h3>
+      <h3>
+        {{
+          isEdit ? `Editar Misión #${props.mision?.idMision}` : "Nueva Misión"
+        }}
+      </h3>
 
-      <form @submit.prevent="createMision">
+      <form @submit.prevent="submit">
         <!-- Tipo de misión -->
         <label>
           Tipo de Misión
-          <select v-model.number="newMision.idTipoMision" required>
+          <select
+            v-model.number="form.idTipoMision"
+            required
+            :disabled="saving"
+          >
             <option v-if="!tiposMision && !tiposError" disabled>
               Cargando tipos...
             </option>
@@ -51,7 +59,11 @@
         <!-- Dron asignado -->
         <label>
           Dron Asignado
-          <select v-model.number="newMision.idDronAsignado" required>
+          <select
+            v-model.number="form.idDronAsignado"
+            required
+            :disabled="saving"
+          >
             <option v-if="!drones && !dronesError" disabled>
               Cargando drones...
             </option>
@@ -67,25 +79,27 @@
         <label>
           Fecha Inicio Planificada
           <input
-            v-model="newMision.fechaInicioPlanificada"
+            v-model="form.fechaInicioPlanificada"
             type="datetime-local"
             required
+            :disabled="saving"
           />
         </label>
 
         <label>
           Fecha Fin Planificada
           <input
-            v-model="newMision.fechaFinPlanificada"
+            v-model="form.fechaFinPlanificada"
             type="datetime-local"
             required
+            :disabled="saving"
           />
         </label>
 
         <!-- Estado -->
         <label>
           Estado
-          <select v-model="newMision.estado" required>
+          <select v-model="form.estado" required :disabled="saving">
             <option>Pendiente</option>
             <option>Completada</option>
           </select>
@@ -94,7 +108,7 @@
         <!-- Ruta -->
         <label>
           Ruta (selecciona 2 puntos en el mapa)
-          <MapPicker mode="route" v-model:rutaWKT="newMision.rutaWKT" />
+          <MapPicker mode="route" v-model:rutaWKT="form.rutaWKT" />
 
           <div style="margin-top: 0.5rem">
             <small>Ruta WKT generada:</small>
@@ -108,9 +122,7 @@
                 margin-top: 0.25rem;
               "
             >
-              {{
-                newMision.rutaWKT || "Sin ruta (haz doble clic para limpiar)"
-              }}
+              {{ form.rutaWKT || "Sin ruta (haz doble clic para limpiar)" }}
             </div>
           </div>
         </label>
@@ -124,11 +136,16 @@
             margin-top: 1rem;
           "
         >
-          <button type="button" class="secondary" @click="cancel">
+          <button
+            type="button"
+            class="secondary"
+            @click="cancel"
+            :disabled="saving"
+          >
             Cancelar
           </button>
           <button type="submit" :disabled="saving" class="contrast">
-            {{ saving ? "Guardando..." : "Crear" }}
+            {{ saving ? "Guardando..." : isEdit ? "Guardar" : "Crear" }}
           </button>
         </div>
 
@@ -141,20 +158,31 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watchEffect } from "vue";
+import { reactive, ref, watch, watchEffect, computed } from "vue";
 import MapPicker from "~/components/MapPicker.vue";
 
+type Mision = {
+  idMision: number;
+  idDronAsignado: number | null;
+  idTipoMision: number;
+  fechaInicioPlanificada: string;
+  fechaFinPlanificada: string;
+  estado: string;
+  rutaWKT: string;
+};
+
 const props = defineProps({
-  show: {
-    type: Boolean,
-    default: false,
-  },
+  show: { type: Boolean, default: false },
+  // si viene, es editar; si no viene, es crear
+  mision: { type: Object as () => Mision | null, default: null },
 });
 
-const emit = defineEmits(["update:show", "created"]);
+const emit = defineEmits(["update:show", "created", "saved"]);
 
 const saving = ref(false);
 const formError = ref<string | null>(null);
+
+const isEdit = computed(() => !!props.mision?.idMision);
 
 // Interfaces
 interface TipoMision {
@@ -183,7 +211,7 @@ const modelsMap = ref<Record<number, any>>({});
 const modelsLoading = ref(false);
 
 // Estado del formulario
-const newMision = reactive({
+const form = reactive({
   idTipoMision: 0,
   idDronAsignado: null as number | null,
   fechaInicioPlanificada: "",
@@ -192,14 +220,15 @@ const newMision = reactive({
   rutaWKT: "",
 });
 
-// Seleccionar primer tipo de misión automáticamente
+// Seleccionar primer tipo de misión automáticamente (solo en crear)
 watchEffect(() => {
   if (
+    !isEdit.value &&
     tiposMision.value &&
     tiposMision.value.length &&
-    newMision.idTipoMision === 0
+    form.idTipoMision === 0
   ) {
-    newMision.idTipoMision = tiposMision.value[0].idTipoMision;
+    form.idTipoMision = tiposMision.value[0].idTipoMision;
   }
 });
 
@@ -232,52 +261,97 @@ async function loadModels() {
 // Cargar modelos al iniciar
 await loadModels();
 
+// Cuando se abre el modal, precargar valores si es editar
+watch(
+  [() => props.show, () => props.mision],
+  () => {
+    if (!props.show) return;
+
+    formError.value = null;
+
+    if (isEdit.value && props.mision) {
+      form.idTipoMision = props.mision.idTipoMision;
+      form.idDronAsignado = props.mision.idDronAsignado;
+
+      // ISO -> datetime-local: yyyy-MM-ddTHH:mm
+      const toLocalInput = (iso: string) => (iso ? iso.slice(0, 16) : "");
+      form.fechaInicioPlanificada = toLocalInput(
+        props.mision.fechaInicioPlanificada
+      );
+      form.fechaFinPlanificada = toLocalInput(props.mision.fechaFinPlanificada);
+
+      form.estado = props.mision.estado || "Pendiente";
+      form.rutaWKT = props.mision.rutaWKT || "";
+    } else {
+      // crear
+      form.idTipoMision = 0;
+      form.idDronAsignado = null;
+      form.fechaInicioPlanificada = "";
+      form.fechaFinPlanificada = "";
+      form.estado = "Pendiente";
+      form.rutaWKT = "";
+    }
+  },
+  { immediate: true }
+);
+
 function cancel() {
   emit("update:show", false);
 }
 
-async function createMision() {
+async function submit() {
   formError.value = null;
 
   // Validaciones
-  if (!newMision.idTipoMision) {
+  if (!form.idTipoMision) {
     formError.value = "Debes seleccionar un tipo de misión";
     return;
   }
 
-  if (!newMision.fechaInicioPlanificada) {
+  if (!form.idDronAsignado) {
+    formError.value = "Debes seleccionar un dron";
+    return;
+  }
+
+  if (!form.fechaInicioPlanificada) {
     formError.value = "Debes ingresar una fecha de inicio";
     return;
   }
 
-  if (!newMision.fechaFinPlanificada) {
+  if (!form.fechaFinPlanificada) {
     formError.value = "Debes ingresar una fecha de fin";
     return;
   }
 
-  if (
-    !newMision.rutaWKT ||
-    !newMision.rutaWKT.toUpperCase().startsWith("LINESTRING")
-  ) {
+  if (!form.rutaWKT || !form.rutaWKT.toUpperCase().startsWith("LINESTRING")) {
     formError.value =
       "Debes ingresar una ruta válida en formato WKT (LINESTRING)";
     return;
   }
 
   const payload = {
-    idTipoMision: newMision.idTipoMision,
-    idDronAsignado: newMision.idDronAsignado,
-    fechaInicioPlanificada: new Date(
-      newMision.fechaInicioPlanificada
-    ).toISOString(),
-    fechaFinPlanificada: new Date(newMision.fechaFinPlanificada).toISOString(),
-    estado: newMision.estado,
-    rutaWKT: newMision.rutaWKT,
+    idTipoMision: form.idTipoMision,
+    idDronAsignado: form.idDronAsignado,
+    fechaInicioPlanificada: new Date(form.fechaInicioPlanificada).toISOString(),
+    fechaFinPlanificada: new Date(form.fechaFinPlanificada).toISOString(),
+    estado: form.estado,
+    rutaWKT: form.rutaWKT,
   };
 
   saving.value = true;
 
   try {
+    if (isEdit.value && props.mision) {
+      await $fetch(`/api/misiones/actualizar/${props.mision.idMision}`, {
+        method: "PUT",
+        body: payload,
+      });
+
+      emit("saved");
+      emit("update:show", false);
+      return;
+    }
+
     await $fetch("/api/misiones/crear", {
       method: "POST",
       body: payload,
@@ -286,7 +360,8 @@ async function createMision() {
     emit("created");
     emit("update:show", false);
   } catch (e: any) {
-    formError.value = e?.data?.message || e?.message || "Error al crear misión";
+    formError.value =
+      e?.data?.message || e?.message || "Error guardando misión";
   } finally {
     saving.value = false;
   }

@@ -133,9 +133,7 @@ async function deleteDron(d: any) {
         </div>
 
         <div class="card-content">
-          <p class="info-row">
-            <strong>Modelo ID:</strong> {{ d.idModelo }}
-          </p>
+          <p class="info-row"><strong>Modelo ID:</strong> {{ d.idModelo }}</p>
           <p class="info-row" v-if="modelsMap[d.idModelo]">
             <strong>Modelo:</strong> {{ modelsMap[d.idModelo].nombreModelo }}
           </p>
@@ -143,20 +141,33 @@ async function deleteDron(d: any) {
 
           <p class="info-row">
             <strong>Estado:</strong>
-            <span :class="d.estado === 'Disponible' ? 'status-available' : 'status-maintenance'">
+            <span
+              :class="
+                d.estado === 'Disponible'
+                  ? 'status-available'
+                  : 'status-maintenance'
+              "
+            >
               {{ d.estado }}
             </span>
           </p>
 
           <div v-if="modelsMap[d.idModelo]" class="model-details">
             <p class="info-row">
-              <strong>Fabricante:</strong> {{ modelsMap[d.idModelo].fabricante }}
+              <strong>Fabricante:</strong>
+              {{ modelsMap[d.idModelo].fabricante }}
             </p>
             <p class="info-row">
-              <strong>Capacidad:</strong> {{ modelsMap[d.idModelo].capacidadCargaKg }} kg
+              <strong>Capacidad:</strong>
+              {{ modelsMap[d.idModelo].capacidadCargaKg }} kg
             </p>
             <p class="info-row">
-              <strong>Autonomía:</strong> {{ modelsMap[d.idModelo].autonomiaMinutos }} min
+              <strong>Autonomía:</strong>
+              {{ modelsMap[d.idModelo].autonomiaMinutos }} min
+            </p>
+            <p class="info-row">
+              <strong>Velocidad (promedio):</strong>
+              {{ modelsMap[d.idModelo].velocidadPromedioKmh }} km/h
             </p>
           </div>
         </div>
