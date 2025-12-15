@@ -163,4 +163,15 @@ public class MisionController {
                 misionService.getReporteResumenMisiones();
         return ResponseEntity.ok(reporte);
     }
+
+    /**
+     * Iniciar misión
+     * @param idMision ID de la misión a iniciar.
+     * @return
+     */
+    @PostMapping("/iniciar/{idMision}")
+    public ResponseEntity<String> iniciarMision(@PathVariable Long idMision) {
+        misionService.iniciarMision(idMision);
+        return ResponseEntity.ok("Misión iniciada.");
+    }
 }

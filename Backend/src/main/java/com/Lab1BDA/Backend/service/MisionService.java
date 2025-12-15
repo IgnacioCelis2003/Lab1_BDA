@@ -348,7 +348,7 @@ public class MisionService {
         return tiempoViaje + calcularDuracionMision(m);
     }
 
-    private void iniciarMision(long id){
+    public void iniciarMision(long id){
         Mision mision = misionRepository.findById(id).get();
         mision.setEstado("En Progreso");
         Dron dron = dronRepository.findById(mision.getIdDronAsignado())
