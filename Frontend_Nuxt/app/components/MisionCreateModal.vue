@@ -259,7 +259,11 @@ async function loadModels() {
 }
 
 // Cargar modelos al iniciar
-await loadModels();
+watch(drones, async (newDrones) => {
+  if (newDrones && newDrones.length > 0) {
+    await loadModels();
+  }
+}, { immediate: true });
 
 // Cuando se abre el modal, precargar valores si es editar
 watch(
