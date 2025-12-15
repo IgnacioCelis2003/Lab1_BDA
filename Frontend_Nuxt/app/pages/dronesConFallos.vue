@@ -16,7 +16,7 @@ const {
 <template>
   <main class="container">
     <div class="headings">
-      <h2>Reporte: Los 5 Drones con más Fallos</h2>
+      <h2>Los 5 Drones con más Fallos</h2>
       <NuxtLink to="/drones" role="button" class="secondary">
         Volver a Drones
       </NuxtLink>

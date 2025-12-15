@@ -65,8 +65,8 @@ async function deleteModelo(m: any) {
         <h2>Modelos Disponibles</h2>
         <div style="display: flex; gap: 0.5rem">
           <NuxtLink to="/drones" role="button" class="secondary">Volver</NuxtLink>
-          <NuxtLink to="/registroDuracionVuelo" role="button" class="contrast">
-            Ver Reporte de Duración de Vuelo
+          <NuxtLink to="/registroduracionvuelo" role="button" class="contrast">
+            Revisar Reporte de Duración de Vuelo
           </NuxtLink>
           <button class="contrast" @click="showModal = true">
             Agregar Modelo

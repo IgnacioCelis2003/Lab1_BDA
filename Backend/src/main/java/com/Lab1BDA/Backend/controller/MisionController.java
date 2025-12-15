@@ -126,8 +126,7 @@ public class MisionController {
      */
     @GetMapping("/reportes/desempeno-tipo")
     public ResponseEntity<List<DesempenoTipoMisionDTO>> getReporteDesempenoTipoMision() {
-        List<DesempenoTipoMisionDTO> reporte =
-                misionService.getReporteDesempenoTipoMision();
+        List<DesempenoTipoMisionDTO> reporte = misionService.getReporteDesempenoTipoMision();
         return ResponseEntity.ok(reporte);
     }
 

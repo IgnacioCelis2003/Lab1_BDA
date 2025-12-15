@@ -119,8 +119,11 @@ async function iniciarMision(m: Mision) {
       >
         <h2>Misiones</h2>
         <div style="display: flex; gap: 0.5rem">
-          <NuxtLink to="/tiposmisiones" class="secondary">
+          <NuxtLink to="/tiposmisiones" type="button" class="secondary">
             Revisar misiones disponibles
+          </NuxtLink>
+          <NuxtLink to="/desempenotipomisiones" type="button" class="contrast">
+            Revisar Reporte de Desempeño por Tipo de Misión
           </NuxtLink>
           <button class="contrast" @click="showModal = true">
             Crear misión

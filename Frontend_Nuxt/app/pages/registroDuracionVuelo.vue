@@ -16,7 +16,7 @@ const {
 <template>
   <main class="container">
     <div class="headings">
-      <h2>Reporte: Duración de Vuelo (Último Mes)</h2>
+      <h2>Duración de Vuelo (Último Mes)</h2>
       <NuxtLink to="/modelosdron" role="button" class="contrast">
         Volver a Modelos
       </NuxtLink>
