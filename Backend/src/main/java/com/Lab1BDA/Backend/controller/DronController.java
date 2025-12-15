@@ -166,4 +166,15 @@ public class DronController {
         return ResponseEntity.ok(dronService.getReporteDesempenoGlobal());
     }
 
+    /**
+     * Endpoint para obtener 5 drones cercanos a cierto punto.
+     * @param lat Latitud del punto consultado.
+     * @param lon Longitud del punto consultado.
+     * @return
+     */
+    @GetMapping("/cercanos/{lat}/{lon}")
+    public ResponseEntity<List<AnalisisGeograficoDTO>> getDronesCercanos(@PathVariable double lat, @PathVariable double lon) {
+        return ResponseEntity.ok(dronService.getReporteAnalisisGeografico(lat, lon));
+    }
+
 }

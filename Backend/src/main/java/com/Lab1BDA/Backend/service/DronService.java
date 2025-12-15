@@ -135,6 +135,4 @@ public class DronService {
     public List<ReporteDesempenoDronDTO> getReporteDesempenoGlobal() {
         return dronRepository.findReporteDesempenoGlobal();
     }
-
-
 }
