@@ -7,6 +7,7 @@ type Modelo = {
   fabricante: string;
   capacidadCargaKg: number;
   autonomiaMinutos: number;
+  velocidadPromedioKmh: number;
 };
 
 const props = defineProps({
@@ -20,6 +21,7 @@ const nombreModelo = ref("");
 const fabricante = ref("");
 const capacidadCargaKg = ref<number | null>(null);
 const autonomiaMinutos = ref<number | null>(null);
+const velocidadPromedioKmh = ref<number | null>(null);
 const submitting = ref(false);
 const error = ref<string | null>(null);
 
@@ -30,7 +32,7 @@ function close() {
 }
 
 watch(
-  () => [props.show, props.modelo],
+  [() => props.show, () => props.modelo],
   () => {
     if (!props.show) return;
 
@@ -41,11 +43,13 @@ watch(
       fabricante.value = props.modelo.fabricante;
       capacidadCargaKg.value = props.modelo.capacidadCargaKg;
       autonomiaMinutos.value = props.modelo.autonomiaMinutos;
+      velocidadPromedioKmh.value = props.modelo.velocidadPromedioKmh;
     } else {
       nombreModelo.value = "";
       fabricante.value = "";
       capacidadCargaKg.value = null;
       autonomiaMinutos.value = null;
+      velocidadPromedioKmh.value = null;
     }
   },
   { immediate: true }
@@ -58,7 +62,8 @@ async function submit() {
     !nombreModelo.value ||
     !fabricante.value ||
     capacidadCargaKg.value == null ||
-    autonomiaMinutos.value == null
+    autonomiaMinutos.value == null ||
+    velocidadPromedioKmh.value == null
   ) {
     error.value = "Todos los campos son obligatorios";
     return;
@@ -72,22 +77,20 @@ async function submit() {
       fabricante: fabricante.value,
       capacidadCargaKg: capacidadCargaKg.value,
       autonomiaMinutos: autonomiaMinutos.value,
+      velocidadPromedioKmh: velocidadPromedioKmh.value,
     };
 
     if (isEdit.value && props.modelo) {
-      await $fetch(
-        `/api/modelos/actualizar/${props.modelo.idModelo}`,
-        {
-          method: "PUT",
-          body,
-        }
-      );
+      await $fetch(`/api/modelos/actualizar/${props.modelo.idModelo}`, {
+        method: "PUT",
+        body,
+      });
       emit("saved");
       close();
       return;
     }
 
-    await $fetch('/api/modelos/crear', {
+    await $fetch("/api/modelos/crear", {
       method: "POST",
       body,
     });
@@ -153,6 +156,15 @@ async function submit() {
         <label>
           Autonomía (min)
           <input v-model.number="autonomiaMinutos" type="number" />
+        </label>
+
+        <label>
+          Velocidad Promedio (Km/h)
+          <input
+            v-model.number="velocidadPromedioKmh"
+            type="number"
+            step="0.1"
+          />
         </label>
 
         <div style="display: flex; gap: 0.5rem; justify-content: flex-end">

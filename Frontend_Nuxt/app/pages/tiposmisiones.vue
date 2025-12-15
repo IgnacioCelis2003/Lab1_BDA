@@ -42,7 +42,7 @@ async function deleteTipo(t: any) {
   deletingId.value = id;
 
   try {
-    await $fetch(`http://localhost:8080/api/tipos-mision/eliminar/${id}`, {
+    await $fetch(`/api/tipos-mision/eliminar/${id}`, {
       method: "DELETE",
     });
 
@@ -101,9 +101,7 @@ async function deleteTipo(t: any) {
         </div>
 
         <div class="card-content">
-          <p class="info-row">
-            <strong>ID:</strong> {{ t.idTipoMision }}
-          </p>
+          <p class="info-row"><strong>ID:</strong> {{ t.idTipoMision }}</p>
         </div>
 
         <div class="card-actions">

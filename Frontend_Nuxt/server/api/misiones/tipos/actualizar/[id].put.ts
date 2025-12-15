@@ -1,9 +1,9 @@
 import { getCookie, createError, readBody } from "h3";
 
-export default defineEventHandler(async (event): Promise<any> => {
+export default defineEventHandler(async (event) => {
   const id = event.context.params?.id;
   if (!id) {
-    throw createError({ statusCode: 400, statusMessage: "Missing drone id" });
+    throw createError({ statusCode: 400, statusMessage: "Missing tipo id" });
   }
 
   const token = getCookie(event, "token");
@@ -12,20 +12,20 @@ export default defineEventHandler(async (event): Promise<any> => {
 
   try {
     const body = await readBody(event);
-    const data: any = await $fetch(
-      `http://localhost:8080/api/modelos/actualizar/${id}`,
+
+    return await $fetch(
+      `http://localhost:8080/api/tipos-mision/actualizar/${id}`,
       {
         method: "PUT",
         headers,
         body,
       }
     );
-    return data;
   } catch (err: any) {
-    console.error("[modelos proxy] error fetching backend", err);
+    console.error("[tipos-mision actualizar] error", err);
     throw createError({
       statusCode: err?.statusCode || 502,
-      statusMessage: err?.data?.message || String(err),
+      statusMessage: err?.data?.message || err?.message || String(err),
     });
   }
 });

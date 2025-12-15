@@ -16,7 +16,7 @@ interface Mision {
   rutaWKT: string;
 }
 
-// Obtener todas las misiones registradas
+// Obtener todas las misiones registradas (backend: GET /api/misiones)
 const {
   data: misiones,
   error,
@@ -24,13 +24,60 @@ const {
   refresh,
 } = await useFetch<Mision[]>(`/api/misiones/all`);
 
-// Mostrar o no el modal de 'crear misión'
+// Modal crear
 const showModal = ref(false);
+
+// Modal editar
+const showEditModal = ref(false);
+const selectedMision = ref<Mision | null>(null);
+
+// Estado para botón eliminar
+const deletingId = ref<number | null>(null);
 
 // Manejo del evento de crear misión
 async function onCreated() {
   showModal.value = false;
   await refresh();
+}
+
+function openEdit(m: Mision) {
+  selectedMision.value = { ...m };
+  showEditModal.value = true;
+}
+
+async function onSaved() {
+  showEditModal.value = false;
+  selectedMision.value = null;
+  await refresh();
+}
+
+async function deleteMision(m: Mision) {
+  const id = m?.idMision;
+  if (!id) return;
+
+  const ok = confirm(`¿Seguro que quieres eliminar la misión #${id}?`);
+  if (!ok) return;
+
+  deletingId.value = id;
+
+  try {
+    await $fetch(`/api/misiones/eliminar/${id}`, {
+      method: "DELETE",
+    });
+
+    // si justo estabas editando esa misión, cierra modal
+    if (selectedMision.value?.idMision === id) {
+      showEditModal.value = false;
+      selectedMision.value = null;
+    }
+
+    await refresh();
+  } catch (e: any) {
+    console.error("Failed deleting mision", e);
+    alert(e?.data?.message || e?.message || "Error eliminando misión");
+  } finally {
+    deletingId.value = null;
+  }
 }
 </script>
 
@@ -65,44 +112,75 @@ async function onCreated() {
     <section v-else class="grid">
       <article v-for="m in misiones" :key="m.idMision" class="card">
         <h3>Misión #{{ m.idMision }}</h3>
+
         <p><strong>Tipo de Misión:</strong> ID {{ m.idTipoMision }}</p>
+
         <p>
           <strong>Dron Asignado:</strong>
           {{ m.idDronAsignado ? `ID ${m.idDronAsignado}` : "No asignado" }}
         </p>
+
         <p><strong>Estado:</strong> {{ m.estado }}</p>
+
         <hr style="margin: 0.5rem 0" />
+
         <p>
           <strong>Fecha Inicio Planificada:</strong>
           {{ new Date(m.fechaInicioPlanificada).toLocaleString("es-CL") }}
         </p>
+
         <p>
           <strong>Fecha Fin Planificada:</strong>
           {{ new Date(m.fechaFinPlanificada).toLocaleString("es-CL") }}
         </p>
+
         <p v-if="m.fechaInicioReal">
           <strong>Fecha Inicio Real:</strong>
           {{ new Date(m.fechaInicioReal).toLocaleString("es-CL") }}
         </p>
+
         <p v-if="m.fechaFinReal">
           <strong>Fecha Fin Real:</strong>
           {{ new Date(m.fechaFinReal).toLocaleString("es-CL") }}
         </p>
+
         <hr style="margin: 0.5rem 0" />
+
         <p>
           <strong>Ruta WKT:</strong>
           <code style="font-size: 0.85rem; word-break: break-word">{{
             m.rutaWKT
           }}</code>
         </p>
+
         <p>
           <strong>Creada:</strong>
           {{ new Date(m.fechaCreacion).toLocaleString("es-CL") }}
         </p>
+
+        <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem">
+          <button class="secondary" @click="openEdit(m)">Editar</button>
+
+          <button
+            class="contrast"
+            :disabled="deletingId === m.idMision"
+            :aria-busy="deletingId === m.idMision"
+            @click="deleteMision(m)"
+          >
+            {{ deletingId === m.idMision ? "Eliminando..." : "Eliminar" }}
+          </button>
+        </div>
       </article>
     </section>
 
-    <!-- Componente Modal -->
+    <!-- Modal crear -->
     <MisionCreateModal v-model:show="showModal" @created="onCreated" />
+
+    <!-- Modal editar (debes crear este componente) -->
+    <MisionCreateModal
+      v-model:show="showEditModal"
+      :mision="selectedMision"
+      @saved="onSaved"
+    />
   </main>
 </template>

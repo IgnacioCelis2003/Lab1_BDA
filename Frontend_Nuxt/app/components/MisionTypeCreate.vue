@@ -56,7 +56,7 @@ async function submit() {
 
     if (isEdit.value && props.tipo) {
       await $fetch(
-        `http://localhost:8080/api/tipos-mision/actualizar/${props.tipo.idTipoMision}`,
+        `/api/misiones/tipos/actualizar/${props.tipo.idTipoMision}`,
         {
           method: "PUT",
           body,
@@ -67,7 +67,7 @@ async function submit() {
       return;
     }
 
-    await $fetch("http://localhost:8080/api/tipos-mision/crear", {
+    await $fetch("/api/misiones/tipos/crear", {
       method: "POST",
       body,
     });
