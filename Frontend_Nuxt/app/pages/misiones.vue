@@ -135,7 +135,7 @@ async function iniciarMision(m: Mision) {
       {{ error.statusMessage || error.message }}
     </article>
 
-    <section v-else class="grid">
+    <section v-else class="misiones-grid">
       <article v-for="m in misiones" :key="m.idMision" class="card">
         <h3>Misión #{{ m.idMision }}</h3>
 
@@ -220,3 +220,25 @@ async function iniciarMision(m: Mision) {
     />
   </main>
 </template>
+
+<style scoped>
+/* Esto crea una grilla responsive.
+  - minmax(300px, 1fr): Cada tarjeta tendrá al menos 300px de ancho.
+  - auto-fill: Si caben más tarjetas en la pantalla, las pone al lado.
+    Si no caben, las baja a la siguiente línea.
+*/
+.misiones-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem; /* Espacio entre tarjetas */
+  margin-top: 1rem;
+}
+
+/* Opcional: Para asegurar que las tarjetas tengan altura uniforme */
+.card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+</style>

@@ -89,6 +89,29 @@ public class MisionService {
         return misionRepository.update(misionExistente);
     }
 
+    public void iniciarMision(long id){
+        Mision mision = misionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Misión no encontrada con id: " + id));
+        mision.setEstado("En Progreso");
+        mision.setFechaInicioReal(LocalDateTime.now());
+
+        Dron dron = dronRepository.findById(mision.getIdDronAsignado())
+                .orElseThrow();
+        ModeloDron modelo = modeloDronRepository.findById(dron.getIdModelo()).orElseThrow();
+        dron.setEstado("En Vuelo");
+
+        RegistroVuelo registroVuelo = new RegistroVuelo();
+        registroVuelo.setIdMision(id);
+        registroVuelo.setTimestamp(LocalDateTime.now());
+        registroVuelo.setCoordenadas(mision.getRuta().getStartPoint());
+        registroVuelo.setNivelBateriaPorcentaje(100.0);
+        registroVuelo.setVelocidadKmh(modelo.getVelocidadPromedioKmh());
+
+        dronRepository.update(dron);
+        misionRepository.update(mision);
+        registroVueloRepository.save(registroVuelo);
+    }
+
     public void eliminarMision(Long id) {
         getMisionPorId(id); // Verifica que existe
         misionRepository.deleteById(id);
@@ -178,10 +201,6 @@ public class MisionService {
         return new RutaOptimaResponseDTO(rutasFinales, huerfanas, "Optimización finalizada.");
     }
 
-    /**
-     * Obtiene el reporte de desempeño por tipo de misión (Requisito #3).
-     * @return Lista de DesempenoTipoMisionDTO
-     */
     /**
      * Obtiene el reporte de desempeño por tipo de misión (Requisito #3).
      * @return Lista de DesempenoTipoMisionDTO
@@ -348,29 +367,6 @@ public class MisionService {
     private double calcularCostoTiempo(Mision m, double distancia, double velocidadMetrosMin) {
         double tiempoViaje = distancia / velocidadMetrosMin;
         return tiempoViaje + calcularDuracionMision(m);
-    }
-
-    public void iniciarMision(long id){
-        Mision mision = misionRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Misión no encontrada con id: " + id));
-        mision.setEstado("En Progreso");
-        mision.setFechaInicioReal(LocalDateTime.now());
-
-        Dron dron = dronRepository.findById(mision.getIdDronAsignado())
-                .orElseThrow();
-        ModeloDron modelo = modeloDronRepository.findById(dron.getIdModelo()).orElseThrow();
-        dron.setEstado("En Vuelo");
-
-        RegistroVuelo registroVuelo = new RegistroVuelo();
-        registroVuelo.setIdMision(id);
-        registroVuelo.setTimestamp(LocalDateTime.now());
-        registroVuelo.setCoordenadas(mision.getRuta().getStartPoint());
-        registroVuelo.setNivelBateriaPorcentaje(100.0);
-        registroVuelo.setVelocidadKmh(modelo.getVelocidadPromedioKmh());
-
-        dronRepository.update(dron);
-        misionRepository.update(mision);
-        registroVueloRepository.save(registroVuelo);
     }
 
 }

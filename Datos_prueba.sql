@@ -1,6 +1,6 @@
 --Usuario de prueba (no para acceso)
 -- Tipos de Mision
-INSERT INTO tipos_mision(nombre_tipo) VALUES ('Entrega'),('Inspeccion'),('Vigilancia')
+INSERT INTO tipos_mision(nombre_tipo) VALUES ('Entrega'),('Inspeccion'),('Vigilancia');
 -- Modelos de Dron
 INSERT INTO modelos_dron(
     nombre_modelo,
@@ -319,6 +319,3 @@ INSERT INTO misiones(
 
 (14,2,1,'2025-12-04 09:10','2025-12-04 11:30','2025-12-04 13:30','2025-12-04 11:40','2025-12-04 13:20','Completada',
  ST_GeogFromText('LINESTRING(-70.8200 -33.2300, -70.7400 -33.7300)'));
-
-
-
