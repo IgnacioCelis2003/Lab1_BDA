@@ -6,6 +6,9 @@ const showEditModal = ref(false);
 const selectedModel = ref<any | null>(null);
 const deletingId = ref<number | null>(null);
 
+// Estado para saber qué modelo se está procesando (loading individual)
+const loadingMantenimientoId = ref<number | null>(null);
+
 const {
   data: modelos,
   error,
@@ -50,6 +53,38 @@ async function deleteModelo(m: any) {
     deletingId.value = null;
   }
 }
+
+async function verificarMantenimiento(m: any) {
+  const id = m?.idModelo;
+  if (!id) return;
+
+  const confirmacion = confirm(
+    `¿Ejecutar revisión masiva para el modelo "${m.nombreModelo}"?\n\n` +
+    `Esto pasará a estado 'En Mantenimiento' a todos los drones de este modelo ` +
+    `que tengan más de 100 horas de vuelo.`
+  );
+  
+  if (!confirmacion) return;
+
+  loadingMantenimientoId.value = id;
+
+  try {
+    // Llamamos a nuestro proxy
+    const res: any = await $fetch('/api/drones/mantenimiento/verificar', {
+      method: 'POST',
+      body: { idModelo: id }
+    });
+
+    // Mostramos el resultado que devuelve el backend
+    alert(`Proceso finalizado.\n\n${res.mensaje}\nDrones actualizados: ${res.dronesActualizados}`);
+    
+  } catch (e: any) {
+    console.error("Error mantenimiento", e);
+    alert(e?.statusMessage || "Error al ejecutar el procedimiento de mantenimiento.");
+  } finally {
+    loadingMantenimientoId.value = null;
+  }
+}
 </script>
 
 <template>
@@ -64,13 +99,13 @@ async function deleteModelo(m: any) {
       >
         <h2>Modelos Disponibles</h2>
         <div style="display: flex; gap: 0.5rem">
-          <NuxtLink to="/drones" type="button" class="secondary btn-compact">Volver</NuxtLink>
-          <NuxtLink to="/registroduracionvuelo" type="button" class="contrast btn-compact">
-            Revisar Reporte de Duración de Vuelo
-          </NuxtLink>
           <button class="contrast btn-compact" type="button" @click="showModal = true">
             Agregar Modelo
           </button>
+          <NuxtLink to="/drones" type="button" class="secondary btn-compact">Volver</NuxtLink>
+          <NuxtLink to="/registroduracionvuelo" type="button" class="contrast btn-compact">
+            Revisar Duración de Vuelo
+          </NuxtLink>
         </div>
       </div>
     </div>
@@ -113,6 +148,17 @@ async function deleteModelo(m: any) {
 
         <div class="card-actions">
           <button class="secondary" @click="openEdit(m)">Editar</button>
+
+          <button 
+            class="contrast outline" 
+            @click="verificarMantenimiento(m)"
+            :aria-busy="loadingMantenimientoId === m.idModelo"
+            :disabled="loadingMantenimientoId === m.idModelo"
+            title="Enviar a mantenimiento si el dron tiene más de 100h vuelo"
+          >
+            {{ loadingMantenimientoId === m.idModelo ? "Verificando..." : "Mant. Masivo" }}
+          </button>
+          
           <button
             class="contrast"
             :disabled="deletingId === m.idModelo"

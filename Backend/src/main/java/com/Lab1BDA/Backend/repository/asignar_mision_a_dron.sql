@@ -2,8 +2,8 @@
 -- Requisito 6 del enunciado: Simulación de Asignación de Misiones
 
 CREATE OR REPLACE FUNCTION asignar_mision_a_dron(
-    p_id_mision INT,
-    p_id_dron INT
+    p_id_mision BIGINT,
+    p_id_dron BIGINT
 )
 RETURNS VOID AS $$
 DECLARE

@@ -2,7 +2,7 @@
 --HACER INSERTS EN ORDEN, UNO A UNO PARA EVITAR ERRORES DE FK (osea hacer el insert tabla por tabla, no
 -- en el mismo query)
 --Usuario de prueba (no para acceso)
-INSERT INTO usuarios(nombre,email,contrasena_hash,rol) VALUES ('test','test','test','Operador')
+INSERT INTO usuarios(nombre,email,contrasena_hash,rol) VALUES ('test','test','test','Operador');
 -- Tipos de Mision
 INSERT INTO tipos_mision(nombre_tipo) VALUES ('Entrega'),('Inspeccion'),('Vigilancia');
 -- Modelos de Dron
