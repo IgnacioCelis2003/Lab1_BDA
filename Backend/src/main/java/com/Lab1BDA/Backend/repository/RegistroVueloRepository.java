@@ -88,4 +88,20 @@ public class RegistroVueloRepository {
         return jdbcTemplate.query(sql, new RegistroVueloRowMapper(), timestamp, finIntervalo);
     }
 
+    /**
+     * Obtiene el registro más reciente de cada misión que está en estado 'En Progreso'.
+     * @return Lista con un registro por cada misión activa.
+     */
+    public List<RegistroVuelo> findLatestByMisionWithActiveStatus() {
+        String sql = "SELECT DISTINCT ON (rv.id_mision) " +
+                "rv.id_registro_vuelo, rv.id_mision, rv.\"timestamp\", " +
+                "rv.altitud_msnm, rv.velocidad_kmh, rv.nivel_bateria_porcentaje, " +
+                "ST_AsText(rv.coordenadas) AS coordenadas_wkt " +
+                "FROM registro_vuelo rv " +
+                "INNER JOIN misiones m ON rv.id_mision = m.id_mision " +
+                "WHERE m.estado = 'En Progreso' " +
+                "ORDER BY rv.id_mision, rv.\"timestamp\" DESC";
+        return jdbcTemplate.query(sql, new RegistroVueloRowMapper());
+    }
+
 }

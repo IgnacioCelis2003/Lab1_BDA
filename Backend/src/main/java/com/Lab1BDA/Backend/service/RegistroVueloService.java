@@ -99,10 +99,10 @@ public class RegistroVueloService {
      * @return Ubicaciones de los drones.
      */
     public List<UbicacionDTO> getMonitoreo(){
-        // Encontrar el registro más reciente de cada misión activa
-        List<RegistroVuelo> registros = registroVueloRepository.findByTimestampInterval(LocalDateTime.now());
+        // Obtener el registro más reciente de cada misión en estado "En Progreso"
+        List<RegistroVuelo> registros = registroVueloRepository.findLatestByMisionWithActiveStatus();
         List<UbicacionDTO> ubicaciones = new ArrayList<>();
-        for (RegistroVuelo registro : actualizarMonitoreo(registros, 5)) { //<- Se llega a romper algo quitar esto
+        for (RegistroVuelo registro : actualizarMonitoreo(registros, 5)) {
             ubicaciones.add(registroToUbicacion(registro));
         }
         return ubicaciones;
@@ -150,8 +150,9 @@ public class RegistroVueloService {
                 nuevaLon = destino.getX();
                 mision.setEstado("Completada");
                 dron.setEstado("Disponible");
-                dronRepository.save(dron);
-                misionRepository.save(mision);
+                dronRepository.update(dron);
+                misionRepository.update(mision);
+                registroVueloRepository.save(nuevoRegistro);
             } else {
                 double modulo = Math.sqrt(dx*dx + dy*dy);
                 double dirX = dx / modulo;

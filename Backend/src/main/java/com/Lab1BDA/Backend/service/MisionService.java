@@ -37,6 +37,8 @@ public class MisionService {
     private final WKTReader wktReader = new WKTReader();
     @Autowired
     private ModeloDronRepository modeloDronRepository;
+    @Autowired
+    private RegistroVueloRepository registroVueloRepository;
 
     public List<Mision> getTodasLasMisiones() {
         return misionRepository.findAll();
@@ -349,20 +351,26 @@ public class MisionService {
     }
 
     public void iniciarMision(long id){
-        Mision mision = misionRepository.findById(id).get();
+        Mision mision = misionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Misión no encontrada con id: " + id));
         mision.setEstado("En Progreso");
+        mision.setFechaInicioReal(LocalDateTime.now());
+
         Dron dron = dronRepository.findById(mision.getIdDronAsignado())
                 .orElseThrow();
         ModeloDron modelo = modeloDronRepository.findById(dron.getIdModelo()).orElseThrow();
         dron.setEstado("En Vuelo");
+
         RegistroVuelo registroVuelo = new RegistroVuelo();
         registroVuelo.setIdMision(id);
         registroVuelo.setTimestamp(LocalDateTime.now());
         registroVuelo.setCoordenadas(mision.getRuta().getStartPoint());
         registroVuelo.setNivelBateriaPorcentaje(100.0);
         registroVuelo.setVelocidadKmh(modelo.getVelocidadPromedioKmh());
-        dronRepository.save(dron);
-        misionRepository.save(mision);
+
+        dronRepository.update(dron);
+        misionRepository.update(mision);
+        registroVueloRepository.save(registroVuelo);
     }
 
 }

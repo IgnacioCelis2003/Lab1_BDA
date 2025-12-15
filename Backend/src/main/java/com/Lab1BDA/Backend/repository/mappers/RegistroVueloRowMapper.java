@@ -22,8 +22,14 @@ public class RegistroVueloRowMapper implements RowMapper<RegistroVuelo> {
         registro.setIdRegistroVuelo(rs.getLong("id_registro_vuelo"));
         registro.setIdMision(rs.getLong("id_mision"));
         registro.setTimestamp(rs.getObject("timestamp", LocalDateTime.class));
-        registro.setAltitudMsnm(rs.getObject("altitud_msnm", Double.class));
-        registro.setVelocidadKmh(rs.getObject("velocidad_kmh", Double.class));
+
+        // Manejo seguro de valores Double que pueden ser NULL
+        Object altitudObj = rs.getObject("altitud_msnm");
+        registro.setAltitudMsnm(altitudObj != null ? ((Number) altitudObj).doubleValue() : null);
+
+        Object velocidadObj = rs.getObject("velocidad_kmh");
+        registro.setVelocidadKmh(velocidadObj != null ? ((Number) velocidadObj).doubleValue() : null);
+
         registro.setNivelBateriaPorcentaje(rs.getDouble("nivel_bateria_porcentaje"));
 
         // --- Mapeo de GEOGRAPHY (PostGIS) a Point (JTS) ---
