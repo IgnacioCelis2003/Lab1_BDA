@@ -113,20 +113,24 @@ async function iniciarMision(m: Mision) {
       <div
         style="
           display: flex;
-          justify-content: space-between;
-          align-items: center;
+          flex-direction: column;
+          gap: 1rem;
+          margin-bottom: 2rem;
         "
       >
-        <h2>Misiones</h2>
-        <div style="display: flex; gap: 0.5rem">
+        <h2 style="margin: 0;">Misiones</h2>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
           <NuxtLink to="/tiposmisiones" type="button" class="secondary btn-compact">
             Revisar misiones disponibles
           </NuxtLink>
           <NuxtLink to="/desempenotipomisiones" type="button" class="contrast btn-compact">
-            Revisar Reporte de Desempeño por Tipo de Misión
+            Revisar Desempeño por Tipo de Misión
+          </NuxtLink>
+          <NuxtLink to="/desempenomensual" type="button" class="contrast btn-compact">
+            Revisar Desepeño Mensual de Misiones
           </NuxtLink>
           <NuxtLink to="/consumobateriamisiones" type="button" class="contrast btn-compact">
-            Revisar Reporte de Consumo de Batería por Misión
+            Revisar Consumo de Batería por Misión
           </NuxtLink>
           <button class="contrast btn-compact" type="button" @click="showModal = true">
             Crear misión

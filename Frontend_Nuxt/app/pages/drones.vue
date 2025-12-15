@@ -104,11 +104,12 @@ async function deleteDron(d: any) {
       <div
         style="
           display: flex;
-          justify-content: space-between;
-          align-items: center;
+          flex-direction: column;
+          gap: 1rem;
+          margin-bottom: 2rem;
         "
       >
-        <h2>Drones</h2>
+        <h2 style="margin: 0;">Drones</h2>
         <div style="display: flex; gap: 0.5rem">
           <NuxtLink to="/modelosdron" type="button" class="secondary btn-compact">
             Revisar modelos disponibles
