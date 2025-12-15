@@ -1,4 +1,8 @@
+-- Datos de prueba para la base de datos de gestion de drones
+--HACER INSERTS EN ORDEN, UNO A UNO PARA EVITAR ERRORES DE FK (osea hacer el insert tabla por tabla, no
+-- en el mismo query)
 --Usuario de prueba (no para acceso)
+INSERT INTO usuarios(nombre,email,contrasena_hash,rol) VALUES ('test','test','test','Operador')
 -- Tipos de Mision
 INSERT INTO tipos_mision(nombre_tipo) VALUES ('Entrega'),('Inspeccion'),('Vigilancia');
 -- Modelos de Dron
@@ -319,3 +323,118 @@ INSERT INTO misiones(
 
 (14,2,1,'2025-12-04 09:10','2025-12-04 11:30','2025-12-04 13:30','2025-12-04 11:40','2025-12-04 13:20','Completada',
  ST_GeogFromText('LINESTRING(-70.8200 -33.2300, -70.7400 -33.7300)'));
+
+--Registro de vuelos de misiones de relleno:
+INSERT INTO registro_vuelo (
+    id_mision,
+    "timestamp",
+    coordenadas,
+    altitud_msnm,
+    velocidad_kmh,
+    nivel_bateria_porcentaje
+) VALUES
+(1,  '2025-09-16 13:25', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 45),
+(2,  '2025-09-19 10:20', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 38),
+(3,  '2025-09-20 14:55', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 50),
+(4,  '2025-09-24 17:00', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 42),
+(5,  '2025-09-27 10:50', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 36),
+(6,  '2025-09-28 14:10', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 47),
+(7,  '2025-10-03 13:50', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 41),
+(8,  '2025-10-07 09:35', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 39),
+(9,  '2025-10-09 16:00', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 55),
+(10, '2025-11-04 12:55', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 34),
+(11, '2025-11-11 10:05', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 48),
+(12, '2025-11-18 13:20', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 44),
+(13, '2025-12-03 16:10', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 37),
+(14, '2025-12-08 09:20', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 40),
+(15, '2025-09-17 18:05', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 52),
+(16, '2025-09-19 14:10', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 46),
+(17, '2025-09-25 16:30', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 33),
+(18, '2025-09-28 09:10', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 49),
+(19, '2025-10-04 13:00', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 43),
+(20, '2025-10-09 10:00', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 35),
+(21, '2025-11-05 17:35', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 51),
+(22, '2025-11-12 14:40', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 47),
+(23, '2025-12-04 16:30', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 39),
+(24, '2025-12-10 09:05', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 42),
+(25, '2025-11-30 14:00', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 48),
+(26, '2025-12-01 17:05', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 44),
+(27, '2025-12-02 13:30', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 36),
+(28, '2025-12-04 10:05', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 41),
+(29, '2025-12-04 13:00', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 53),
+(30, '2025-12-07 15:35', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 38),
+(31, '2025-12-09 09:40', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 45),
+(32, '2025-12-10 13:30', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 50),
+(33, '2025-12-12 10:10', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 34),
+(34, '2025-12-13 15:05', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 46);
+-- Registros de misiones de drones sin uso en 30 dias
+INSERT INTO registro_vuelo (
+    id_mision,
+    "timestamp",
+    coordenadas,
+    altitud_msnm,
+    velocidad_kmh,
+    nivel_bateria_porcentaje
+) VALUES
+(35, '2025-10-05 15:10', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 44),
+(36, '2025-10-07 10:05', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 39),
+(37, '2025-10-08 14:00', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 52),
+(38, '2025-10-10 13:00', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 41),
+(39, '2025-10-12 17:10', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 36),
+(40, '2025-10-15 09:35', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 48),
+(41, '2025-10-17 10:10', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 43),
+(42, '2025-10-18 13:30', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 50),
+(43, '2025-10-21 10:00', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 38),
+(44, '2025-10-22 15:05', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 46);
+
+-- Registros de misiones fallidas de ciertos drones
+INSERT INTO registro_vuelo (
+    id_mision,
+    "timestamp",
+    coordenadas,
+    altitud_msnm,
+    velocidad_kmh,
+    nivel_bateria_porcentaje
+) VALUES
+(45, '2025-10-18 14:40', ST_GeogFromText('POINT(-70.6440 -33.4510)'), 530, 0, 12),
+(46, '2025-10-23 09:35', ST_GeogFromText('POINT(-70.6600 -33.4380)'), 528, 0, 15),
+(47, '2025-10-25 13:30', ST_GeogFromText('POINT(-70.6250 -33.4630)'), 540, 0, 10),
+(48, '2025-10-28 09:05', ST_GeogFromText('POINT(-70.6810 -33.4430)'), 535, 0, 14),
+(49, '2025-10-31 09:45', ST_GeogFromText('POINT(-70.6130 -33.4300)'), 525, 0, 9),
+(50, '2025-11-02 14:35', ST_GeogFromText('POINT(-70.6490 -33.4570)'), 532, 0, 11),
+(51, '2025-11-06 09:30', ST_GeogFromText('POINT(-70.6670 -33.4500)'), 538, 0, 13),
+(52, '2025-11-07 13:00', ST_GeogFromText('POINT(-70.6330 -33.4670)'), 545, 0, 8),
+(53, '2025-11-10 09:40', ST_GeogFromText('POINT(-70.6580 -33.4550)'), 536, 0, 12),
+(54, '2025-11-12 14:50', ST_GeogFromText('POINT(-70.6410 -33.4250)'), 522, 0, 7),
+(55, '2025-11-14 13:45', ST_GeogFromText('POINT(-70.6470 -33.4450)'), 529, 0, 9),
+(56, '2025-11-18 09:50', ST_GeogFromText('POINT(-70.6180 -33.4520)'), 548, 0, 6),
+(57, '2025-11-21 09:30', ST_GeogFromText('POINT(-70.6760 -33.4350)'), 534, 0, 10),
+(58, '2025-11-22 14:40', ST_GeogFromText('POINT(-70.6030 -33.4590)'), 550, 0, 8),
+(59, '2025-11-26 09:45', ST_GeogFromText('POINT(-70.6620 -33.4500)'), 533, 0, 11),
+(60, '2025-11-27 13:35', ST_GeogFromText('POINT(-70.6330 -33.4670)'), 546, 0, 9),
+(61, '2025-11-30 09:40', ST_GeogFromText('POINT(-70.6580 -33.4550)'), 535, 0, 12),
+(62, '2025-12-01 14:35', ST_GeogFromText('POINT(-70.6410 -33.4250)'), 523, 0, 7),
+(63, '2025-12-03 13:45', ST_GeogFromText('POINT(-70.6470 -33.4450)'), 529, 0, 10),
+(64, '2025-12-06 09:30', ST_GeogFromText('POINT(-70.6180 -33.4520)'), 547, 0, 8),
+(65, '2025-12-08 09:45', ST_GeogFromText('POINT(-70.6760 -33.4350)'), 534, 0, 11),
+(66, '2025-12-09 14:50', ST_GeogFromText('POINT(-70.6030 -33.4590)'), 551, 0, 9),
+(67, '2025-12-10 13:00', ST_GeogFromText('POINT(-70.6620 -33.4500)'), 532, 0, 12),
+(68, '2025-12-11 14:40', ST_GeogFromText('POINT(-70.6330 -33.4670)'), 545, 0, 10),
+(69, '2025-12-13 09:35', ST_GeogFromText('POINT(-70.6580 -33.4550)'), 536, 0, 13),
+(70, '2025-12-13 18:40', ST_GeogFromText('POINT(-70.6410 -33.4250)'), 521, 0, 6);
+
+--Registros de misiones largas
+INSERT INTO registro_vuelo (
+    id_mision,
+    "timestamp",
+    coordenadas,
+    altitud_msnm,
+    velocidad_kmh,
+    nivel_bateria_porcentaje
+) VALUES
+(71, '2025-11-03 11:55', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 78),
+(72, '2025-11-07 13:20', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 82),
+(73, '2025-11-12 11:55', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 75),
+(74, '2025-11-18 12:55', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 80),
+(75, '2025-12-04 13:20', ST_GeogFromText('POINT(-70.6600 -33.4565)'), 535, 0, 77);
+
