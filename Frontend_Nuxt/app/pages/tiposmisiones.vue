@@ -72,8 +72,8 @@ async function deleteTipo(t: any) {
       >
         <h2>Tipos de Misión</h2>
         <div style="display: flex; gap: 0.5rem">
-          <NuxtLink to="/misiones" class="secondary">Volver</NuxtLink>
-          <button class="contrast" @click="showModal = true">
+          <NuxtLink to="/misiones" type="button" class="secondary btn-compact">Volver</NuxtLink>
+          <button class="contrast btn-compact" type="button" @click="showModal = true">
             Agregar Tipo
           </button>
         </div>
@@ -178,5 +178,14 @@ async function deleteTipo(t: any) {
   flex: 1;
   padding: 0.5rem 0.75rem;
   font-size: 0.9rem;
+}
+
+.btn-compact {
+  padding: 0.4rem 0.6rem;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  height: auto;
+  display: inline-flex;
+  align-items: center;
 }
 </style>

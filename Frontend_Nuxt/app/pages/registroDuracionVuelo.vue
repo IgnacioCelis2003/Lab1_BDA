@@ -17,7 +17,7 @@ const {
   <main class="container">
     <div class="headings">
       <h2>Duración de Vuelo (Último Mes)</h2>
-      <NuxtLink to="/modelosdron" role="button" class="contrast">
+      <NuxtLink to="/modelosdron" type="button" class="secondary btn-compact">
         Volver a Modelos
       </NuxtLink>
     </div>
@@ -70,5 +70,14 @@ const {
   color: #c62828;
   padding: 1rem;
   border-radius: 4px;
+}
+
+.btn-compact {
+  padding: 0.45rem 0.6rem;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  height: auto;
+  display: inline-flex;
+  align-items: center;
 }
 </style>

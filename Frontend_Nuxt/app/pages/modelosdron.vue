@@ -64,11 +64,11 @@ async function deleteModelo(m: any) {
       >
         <h2>Modelos Disponibles</h2>
         <div style="display: flex; gap: 0.5rem">
-          <NuxtLink to="/drones" role="button" class="secondary">Volver</NuxtLink>
-          <NuxtLink to="/registroduracionvuelo" role="button" class="contrast">
+          <NuxtLink to="/drones" type="button" class="secondary btn-compact">Volver</NuxtLink>
+          <NuxtLink to="/registroduracionvuelo" type="button" class="contrast btn-compact">
             Revisar Reporte de Duración de Vuelo
           </NuxtLink>
-          <button class="contrast" @click="showModal = true">
+          <button class="contrast btn-compact" type="button" @click="showModal = true">
             Agregar Modelo
           </button>
         </div>
@@ -185,5 +185,14 @@ async function deleteModelo(m: any) {
   flex: 1;
   padding: 0.5rem 0.75rem;
   font-size: 0.9rem;
+}
+
+.btn-compact {
+  padding: 0.45rem 0.6rem;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  height: auto;
+  display: inline-flex;
+  align-items: center;
 }
 </style>

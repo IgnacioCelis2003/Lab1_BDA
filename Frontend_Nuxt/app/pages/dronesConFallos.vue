@@ -17,7 +17,7 @@ const {
   <main class="container">
     <div class="headings">
       <h2>Los 5 Drones con más Fallos</h2>
-      <NuxtLink to="/drones" role="button" class="secondary">
+      <NuxtLink to="/drones" type="button" class="secondary btn-compact">
         Volver a Drones
       </NuxtLink>
     </div>
@@ -71,5 +71,14 @@ const {
   color: #c62828;
   padding: 1rem;
   border-radius: 4px;
+}
+
+.btn-compact {
+  padding: 0.45rem 0.6rem;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  height: auto;
+  display: inline-flex;
+  align-items: center;
 }
 </style>
