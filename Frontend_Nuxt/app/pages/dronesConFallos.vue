@@ -1,8 +1,8 @@
 <script setup lang="ts">
 // Definimos la estructura de los datos que vienen del backend
-interface DuracionVueloDTO {
-  nombreModelo: string;
-  tiempoTotalHoras: number;
+interface DronFalloDTO {
+  idDron: bigint;
+  totalMisionesFallidas: bigint;
 }
 
 // Llamamos a nuestro proxy de Nuxt
@@ -10,20 +10,20 @@ const {
   data: reporte, 
   pending, 
   error 
-} = await useFetch<DuracionVueloDTO[]>('/api/drones/reportes/duracion-vuelo');
+} = await useFetch<DronFalloDTO[]>('/api/drones/reportes/drones-con-fallos');
 </script>
 
 <template>
   <main class="container">
     <div class="headings">
-      <h2>Reporte: Duración de Vuelo (Último Mes)</h2>
-      <NuxtLink to="/modelosdron" role="button" class="contrast">
-        Volver a Modelos
+      <h2>Reporte: Los 5 Drones con más Fallos</h2>
+      <NuxtLink to="/drones" role="button" class="secondary">
+        Volver a Drones
       </NuxtLink>
     </div>
 
     <article v-if="pending" aria-busy="true">
-      Cargando reporte...
+      Cargando reporte de fallos...
     </article>
 
     <article v-else-if="error" class="error">
@@ -34,22 +34,23 @@ const {
       <table role="grid">
         <thead>
           <tr>
-            <th scope="col">Modelo de Dron</th>
-            <th scope="col">Horas Totales de Vuelo</th>
+            <th scope="col">ID Dron</th>
+            <th scope="col">Cantidad de Fallos</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(item, index) in reporte" :key="index">
             <td>
-              <strong>{{ item.nombreModelo }}</strong>
+              <strong>#{{ item.idDron }}</strong>
             </td>
-            <td>
-              {{ item.tiempoTotalHoras.toFixed(2) }} hrs
+            <td style="color: #e53935; font-weight: bold;">
+              {{ item.totalMisionesFallidas }}
             </td>
           </tr>
+          
           <tr v-if="reporte && reporte.length === 0">
-            <td colspan="2" style="text-align: center">
-              No hay vuelos registrados en el último mes.
+            <td colspan="3" style="text-align: center">
+              ¡Excelente! No se han registrado misiones fallidas recientemente.
             </td>
           </tr>
         </tbody>

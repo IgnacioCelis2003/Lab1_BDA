@@ -110,8 +110,11 @@ async function deleteDron(d: any) {
       >
         <h2>Drones</h2>
         <div style="display: flex; gap: 0.5rem">
-          <NuxtLink to="/modelosdron" class="secondary">
+          <NuxtLink to="/modelosdron" role="button" class="secondary">
             Revisar modelos disponibles
+          </NuxtLink>
+          <NuxtLink to="/dronesConFallos" role="button" class="contrast">
+            Ver Reporte de Drones con más fallos
           </NuxtLink>
           <button class="contrast" @click="showModal = true">
             Agregar Dron
