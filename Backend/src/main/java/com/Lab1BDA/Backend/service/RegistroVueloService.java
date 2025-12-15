@@ -166,7 +166,7 @@ public class RegistroVueloService {
             GeometryFactory geometryFactory = new GeometryFactory();
             Point nuevasCoordenadas = geometryFactory.createPoint(new Coordinate(nuevaLon, nuevaLat));
             nuevoRegistro.setCoordenadas(nuevasCoordenadas);
-            nuevoRegistro.setTimestamp(nuevoRegistro.getTimestamp().plusSeconds(5));
+            nuevoRegistro.setTimestamp(LocalDateTime.now());
             registroVueloRepository.save(nuevoRegistro);
             registrosActualizados.add(nuevoRegistro);
         }

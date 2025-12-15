@@ -34,6 +34,9 @@ const selectedMision = ref<Mision | null>(null);
 // Estado para botón eliminar
 const deletingId = ref<number | null>(null);
 
+// Estado para botón iniciar misión
+const startingId = ref<number | null>(null);
+
 // Manejo del evento de crear misión
 async function onCreated() {
   showModal.value = false;
@@ -77,6 +80,29 @@ async function deleteMision(m: Mision) {
     alert(e?.data?.message || e?.message || "Error eliminando misión");
   } finally {
     deletingId.value = null;
+  }
+}
+
+async function iniciarMision(m: Mision) {
+  const id = m?.idMision;
+  if (!id) return;
+
+  const ok = confirm(`¿Seguro que quieres iniciar la misión #${id}?`);
+  if (!ok) return;
+
+  startingId.value = id;
+
+  try {
+    await $fetch(`/api/misiones/iniciar/${id}`, {
+      method: "POST",
+    });
+
+    await refresh();
+  } catch (e: any) {
+    console.error("Failed starting mision", e);
+    alert(e?.data?.message || e?.message || "Error iniciando misión");
+  } finally {
+    startingId.value = null;
   }
 }
 </script>
@@ -159,6 +185,16 @@ async function deleteMision(m: Mision) {
         </p>
 
         <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem">
+          <button
+            v-if="m.estado === 'Pendiente'"
+            class="primary"
+            :disabled="startingId === m.idMision"
+            :aria-busy="startingId === m.idMision"
+            @click="iniciarMision(m)"
+          >
+            {{ startingId === m.idMision ? "Iniciando..." : "Iniciar Misión" }}
+          </button>
+
           <button class="secondary" @click="openEdit(m)">Editar</button>
 
           <button
