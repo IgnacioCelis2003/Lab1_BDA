@@ -157,5 +157,13 @@ public class DronController {
         List<AnalisisGeograficoDTO> reporte = dronService.getReporteAnalisisGeografico(lat, lon);
         return ResponseEntity.ok(reporte);
     }
+    /**
+     * Endpoint para obtener reporte de misiones de cada dron (misiones cumplidas, fallidas y tiempo de vuelo).
+     * Acceso: GET /api/drones/reportes/global
+     */
+    @GetMapping("/reportes/global")
+    public ResponseEntity<List<ReporteDesempenoDronDTO>> getReporteGlobal() {
+        return ResponseEntity.ok(dronService.getReporteDesempenoGlobal());
+    }
 
 }

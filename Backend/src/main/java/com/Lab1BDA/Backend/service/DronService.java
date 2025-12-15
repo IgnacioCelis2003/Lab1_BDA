@@ -132,6 +132,9 @@ public class DronService {
     public List<AnalisisGeograficoDTO> getReporteAnalisisGeografico(double latitud, double longitud) {
         return dronRepository.findDronesCercanosPunto(longitud, latitud);
     }
+    public List<ReporteDesempenoDronDTO> getReporteDesempenoGlobal() {
+        return dronRepository.findReporteDesempenoGlobal();
+    }
 
 
 }

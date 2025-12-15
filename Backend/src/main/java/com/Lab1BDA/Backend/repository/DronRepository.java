@@ -242,4 +242,31 @@ public class DronRepository {
 
         return jdbcTemplate.query(sql, new DronSpecsRowMapper());
     }
+
+    /**
+     * Genera un reporte de misiones por cada dron (misiones completadas, fallidas y total ed hroas de vuelo)
+     * @return lista de dron, modelo, total de misiones completadas y fallidas y horas totales de vuelo
+     */
+    public List<ReporteDesempenoDronDTO> findReporteDesempenoGlobal() {
+        String sql = """
+        SELECT 
+            d.id_dron,
+            md.nombre_modelo,
+            -- Contamos condicionalmente según el estado
+            COUNT(CASE WHEN m.estado = 'Completada' THEN 1 END) AS total_completadas,
+            COUNT(CASE WHEN m.estado = 'Fallida' THEN 1 END) AS total_fallidas,
+            -- Sumamos la diferencia de tiempo y la pasamos a horas (o 0 si es nulo)
+            COALESCE(
+                SUM(EXTRACT(EPOCH FROM (m.fecha_fin_real - m.fecha_inicio_real))) / 3600.0, 
+                0
+            ) AS horas_vuelo
+        FROM drones d
+        JOIN modelos_dron md ON d.id_modelo = md.id_modelo
+        LEFT JOIN misiones m ON d.id_dron = m.id_dron_asignado
+        GROUP BY d.id_dron, md.nombre_modelo
+        ORDER BY horas_vuelo DESC
+        """;
+
+        return jdbcTemplate.query(sql, new ReporteDesempenoRowMapper());
+    }
 }
