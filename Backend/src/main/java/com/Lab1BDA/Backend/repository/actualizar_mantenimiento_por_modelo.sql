@@ -2,7 +2,7 @@
 -- Requisito 7 del enunciado: Actualización Masiva de Estado de Mantenimiento
 
 CREATE OR REPLACE FUNCTION actualizar_mantenimiento_por_modelo(
-    p_id_modelo INT
+    p_id_modelo BIGINT
 )
 RETURNS INTEGER AS $$ -- Devuelve el número de drones actualizados
 DECLARE

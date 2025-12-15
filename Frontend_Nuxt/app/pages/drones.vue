@@ -115,10 +115,10 @@ async function deleteDron(d: any) {
             Agregar Dron
           </button>
           <NuxtLink to="/modelosdron" type="button" class="secondary btn-compact">
-            Revisar modelos disponibles
+            Revisar Modelos Disponibles
           </NuxtLink>
           <NuxtLink to="/dronesconfallos" type="button" class="contrast btn-compact">
-            Revisar Reporte de Drones con más fallos
+            Revisar Drones con más fallos
           </NuxtLink>
         </div>
       </div>
