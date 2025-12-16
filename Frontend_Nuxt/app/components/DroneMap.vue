@@ -18,15 +18,26 @@ let L; // Leaflet import dinámico
 // Crear icono según nivel de batería
 function getDroneIcon(bateria) {
   let color;
-  if (bateria > 50) color = 'green';
-  else if (bateria > 20) color = 'orange';
-  else color = 'red';
+  if (bateria > 50) color = '#22c55e';
+  else if (bateria > 20) color = '#f59e0b';
+  else color = '#ef4444';
 
-  return L.icon({
-    iconUrl: `https://via.placeholder.com/30/${color}/000000?text=🚁`,
+  return L.divIcon({
+    className: 'custom-drone-icon',
+    html: `<div style="
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 30px; 
+      filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5));
+    ">
+      <span style="color: ${color}; line-height: 1;">🚁</span>
+    </div>`,
     iconSize: [30, 30],
-    iconAnchor: [15, 30],
-    popupAnchor: [0, -30],
+    iconAnchor: [15, 15], 
+    popupAnchor: [0, -15]
   });
 }
 
@@ -38,23 +49,23 @@ async function fetchDrones() {
     drones.value = data || [];
 
     drones.value.forEach(drone => {
-      const icon = getDroneIcon(drone.bateria);
+      const icon = getDroneIcon(drone.nivelBateriaPorcentaje);
 
       if (markers.value[drone.id]) {
         // Actualizar posición y popup
         markers.value[drone.id].setLatLng([drone.latitud, drone.longitud]);
         markers.value[drone.id].setIcon(icon);
         markers.value[drone.id].bindPopup(`
-          <b>Dron ${drone.id}</b><br>
-          Batería: ${drone.bateria}%<br>
+          <b>Misión #${drone.idMision}</b><br>
+          Batería: ${drone.nivelBateriaPorcentaje}%<br>
           Última actualización: ${new Date(drone.timestamp).toLocaleString()}
         `);
       } else {
         // Crear nuevo marcador
         const marker = L.marker([drone.latitud, drone.longitud], { icon }).addTo(map.value);
         marker.bindPopup(`
-          <b>Dron ${drone.id}</b><br>
-          Batería: ${drone.bateria}%<br>
+          <b>Misión #${drone.idMision}</b><br>
+          Batería: ${drone.nivelBateriaPorcentaje}%<br>
           Última actualización: ${new Date(drone.timestamp).toLocaleString()}
         `);
         markers.value[drone.id] = marker;
@@ -103,5 +114,20 @@ onMounted(async () => {
   color: #333;
   text-align: center;
   pointer-events: none;
+}
+
+.custom-drone-icon {
+  background: transparent !important;
+  border: none !important;
+  width: auto !important;
+  height: auto !important;
+}
+
+.custom-drone-icon div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
 }
 </style>
