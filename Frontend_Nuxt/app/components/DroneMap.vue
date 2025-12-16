@@ -51,11 +51,11 @@ async function fetchDrones() {
     drones.value.forEach(drone => {
       const icon = getDroneIcon(drone.nivelBateriaPorcentaje);
 
-      if (markers.value[drone.id]) {
+      if (markers.value[drone.idMision]) {
         // Actualizar posición y popup
-        markers.value[drone.id].setLatLng([drone.latitud, drone.longitud]);
-        markers.value[drone.id].setIcon(icon);
-        markers.value[drone.id].bindPopup(`
+        markers.value[drone.idMision].setLatLng([drone.latitud, drone.longitud]);
+        markers.value[drone.idMision].setIcon(icon);
+        markers.value[drone.idMision].bindPopup(`
           <b>Misión #${drone.idMision}</b><br>
           Batería: ${drone.nivelBateriaPorcentaje}%<br>
           Última actualización: ${new Date(drone.timestamp).toLocaleString()}
@@ -68,7 +68,7 @@ async function fetchDrones() {
           Batería: ${drone.nivelBateriaPorcentaje}%<br>
           Última actualización: ${new Date(drone.timestamp).toLocaleString()}
         `);
-        markers.value[drone.id] = marker;
+        markers.value[drone.idMision] = marker;
       }
     });
   } catch (error) {
