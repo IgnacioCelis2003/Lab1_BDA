@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
     return data;
 
   } catch (err: any) {
-    console.error('[desempeno-tipo-mision proxy] error fetching backend', err);
+    console.error('[resumen-tipo-mision proxy] error fetching backend', err);
     throw createError({ 
       statusCode: err?.statusCode || 502, 
       statusMessage: err?.data?.message || String(err) 
