@@ -173,4 +173,15 @@ public class MisionController {
         misionService.iniciarMision(idMision);
         return ResponseEntity.ok("Misión iniciada.");
     }
+
+    /**
+     * Completar misión (cambia estado a "Completada" y refresca la vista materializada)
+     * @param idMision ID de la misión a completar.
+     * @return
+     */
+    @PostMapping("/completar/{idMision}")
+    public ResponseEntity<String> completarMision(@PathVariable Long idMision) {
+        misionService.completarMision(idMision);
+        return ResponseEntity.ok("Misión completada y vista materializada actualizada.");
+    }
 }

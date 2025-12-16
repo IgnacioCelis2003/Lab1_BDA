@@ -39,6 +39,8 @@ public class MisionService {
     private ModeloDronRepository modeloDronRepository;
     @Autowired
     private RegistroVueloRepository registroVueloRepository;
+    @Autowired
+    private ResumenMisionesService resumenMisionesService;
 
     public List<Mision> getTodasLasMisiones() {
         return misionRepository.findAll();
@@ -110,6 +112,32 @@ public class MisionService {
         dronRepository.update(dron);
         misionRepository.update(mision);
         registroVueloRepository.save(registroVuelo);
+    }
+
+    /**
+     * Completa una misión (cambia su estado a "Completada" y registra la fecha fin real).
+     * También refresca la vista materializada de misiones completadas.
+     * @param id ID de la misión a completar
+     */
+    public void completarMision(Long id) {
+        Mision mision = misionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Misión no encontrada con id: " + id));
+
+        mision.setEstado("Completada");
+        mision.setFechaFinReal(LocalDateTime.now());
+
+        // Actualizar dron a "Disponible"
+        if (mision.getIdDronAsignado() != null) {
+            Dron dron = dronRepository.findById(mision.getIdDronAsignado())
+                    .orElseThrow(() -> new ResourceNotFoundException("Dron no encontrado"));
+            dron.setEstado("Disponible");
+            dronRepository.update(dron);
+        }
+
+        misionRepository.update(mision);
+
+        // Refrescar la vista materializada de misiones completadas
+        resumenMisionesService.refreshResumenMisiones();
     }
 
     public void eliminarMision(Long id) {
