@@ -156,7 +156,24 @@ async function iniciarMision(m: Mision) {
           {{ m.idDronAsignado ? `ID ${m.idDronAsignado}` : "No asignado" }}
         </p>
 
-        <p><strong>Estado:</strong> {{ m.estado }}</p>
+        <p>
+          <strong>Estado: </strong>
+          <span
+              :class="
+                m.estado === 'Pendiente'
+                  ? 'status-pending'
+                  : m.estado === 'En Progreso'
+                  ? 'status-in-progress'
+                  : m.estado === 'Completada'
+                  ? 'status-completed'
+                  : m.estado === 'Fallida'
+                  ? 'status-failed'
+                  : ''
+              "
+            >
+            {{ m.estado }}
+          </span>
+        </p>
 
         <hr style="margin: 0.5rem 0" />
 
@@ -259,5 +276,37 @@ async function iniciarMision(m: Mision) {
   height: auto;
   display: inline-flex;
   align-items: center;
+}
+
+.status-pending {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.status-in-progress {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.status-completed {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.status-failed {
+  background: rgba(220, 38, 38, 0.15);
+  color: #dc2626;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
 }
 </style>
