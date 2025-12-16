@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
 
   try {
     // Llamar al backend y reenviar el header Authorization si tenemos token
-    const data = await $fetch('http://localhost:8090/api/telemetria/monitoreo', {
+    const data = await $fetch('http://localhost:8080/api/telemetria/monitoreo', {
       method: 'GET',
       headers
     });

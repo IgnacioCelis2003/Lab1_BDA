@@ -85,11 +85,15 @@ public class RegistroVueloService {
      * @return
      */
     public UbicacionDTO registroToUbicacion(RegistroVuelo registro) {
+        // Correccion de coordenadas
+        double latitud = registro.getCoordenadas().getY();
+        double longitud = registro.getCoordenadas().getX();
+
         return new UbicacionDTO(
                 registro.getIdMision(),
                 registro.getTimestamp(),
-                registro.getCoordenadas().getX(),
-                registro.getCoordenadas().getY(),
+                latitud,
+                longitud,
                 registro.getNivelBateriaPorcentaje()
         );
     }

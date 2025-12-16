@@ -121,10 +121,10 @@ async function deleteDron(d: any) {
             Revisar Drones con más fallos
           </NuxtLink>
           <NuxtLink to="/dronesinactivos" type="button" class="contrast btn-compact">
-            Revisar Reporte de Drones Inactivos
+            Revisar Drones Inactivos
           </NuxtLink>
           <NuxtLink to="/cercanos" type="button" class="contrast btn-compact">
-            Análisi por puntos de interés
+            Análisis por puntos de interés
           </NuxtLink>
         </div>
       </div>
